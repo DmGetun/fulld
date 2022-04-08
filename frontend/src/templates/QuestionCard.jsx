@@ -1,16 +1,13 @@
 import React from 'react';
 
-function QuestionCard(){
+function QuestionCard(props){
   return (
     <div class="card question_card">
       <div class="card-body">
-        <h5 class="card-title">Вопрос</h5>
-          <p class="card-text">Ответ</p>
-          <p class="card-text">Ответ</p>
-          <p class="card-text">Ответ</p>
-          <p class="card-text">Ответ</p>
-        <a href="#" class="card-link">Card link</a>
-        <a href="#" class="card-link">Another link</a>
+        <h5 class="card-title">{props.title}</h5>
+          {props.answers.map((item) =>
+           <p class="card-text">{item}</p>
+          )}
       </div>
     </div>
   )

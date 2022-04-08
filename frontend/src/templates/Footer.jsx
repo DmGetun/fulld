@@ -20,8 +20,8 @@ function Footer() {
       </nav>
 
       <div class="col-md-3 text-end">
-        <AuthButton></AuthButton>
-        <RegButton></RegButton>
+        <button type="button" class="auth-button btn btn-primary">Войти</button>
+        <button type="button" class="btn btn-outline-primary">Регистрация</button>
       </div>
     </header>
   </div>

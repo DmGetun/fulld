@@ -1,4 +1,3 @@
-import Footer from './templates/footer'
 import PollBody from './templates/PollBody'
 import './App.css';
 import Layout from './templates/Layout'

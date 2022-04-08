@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+.center {
+    text-align: center;
+}
+
 .question-field {
     width: 100%;
     padding: 10px;
@@ -9,6 +13,21 @@
     border: 2px solid #eee;
     border-radius:10px;
     box-shadow:0 0 15px 4px rgba(0, 0, 0, 0.06);
+}
+
+.question-card {
+    margin-top: 20px;
+    border-radius: 10px;
+    background-color: rgb(123, 123, 130);
+}
+
+.add-question-button{
+    margin:10px 0;
+    text-align:center;
+}
+
+.auth-button {
+    margin-right: 10px;
 }
 
 .answer-field {

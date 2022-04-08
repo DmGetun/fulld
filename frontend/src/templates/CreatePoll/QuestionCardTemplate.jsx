@@ -8,14 +8,15 @@ function QuestionCardTemplate(props){
     let answers = [...Array(AnswersCount)].map((e, i) => <AnswerField/>);
 
   return (
-    <div class="card question_card">
+    <div class="card question_card question-card">
       <div class="card-body">
           <div>
-            <input type='text' placeholder={props.holder} class='mb question-field'/>
+            <input type='text' placeholder={props.holder} class='question-field'/>
           </div>
           <div>
             {answers}
           </div>
+          
         <Button color='link' onClick={() => AddAnswer(AnswersCount + 1)}>
             Добавить ответ
         </Button>

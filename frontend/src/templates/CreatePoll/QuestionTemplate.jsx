@@ -12,14 +12,14 @@ function QuestionTemplate(){
     <div class="container">
       <div class="row">
         <div class="col">
-          Одна колонка
         </div>
         <div class="col-6">
           {card}
-          <Button onClick={() => AddCards(numberCards + 1)}>Добавить вопрос</Button>
+          <div class='add-question-button'>
+            <Button onClick={() => AddCards(numberCards + 1)}>Добавить вопрос</Button>
+          </div>
         </div>
         <div class="col">
-          Одна колонка
         </div>
       </div>
     </div>

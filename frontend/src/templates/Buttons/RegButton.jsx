@@ -6,7 +6,7 @@ function RegButton() {
 
     return(
         <Button variant="Войти" onClick={() => window.location.assign("http://localhost:3000/registr")}>
-        Зарегистрироваться
+          Зарегистрироваться
         </Button>
     );
 }

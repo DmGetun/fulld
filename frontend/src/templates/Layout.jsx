@@ -1,5 +1,5 @@
 import { Container } from "reactstrap";
-import Footer from './footer'
+import Footer from './Footer'
 
 function Layout(props) {
 
