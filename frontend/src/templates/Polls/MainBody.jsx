@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import QuestionCard from './QuestionCard'
-import PollTitle from './Cards/PollTitle'
+import { Route } from "react-router";
+import { Container } from "reactstrap";
 
-function PollBody() {
+
+
+function MainBody(props) {
 
   const n = 8;
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [items, setItems] = useState([]);
-  let card = [...Array(n)].map((e, i) => <QuestionCard key={i} />);
+
   let questions = items.questions;
   let card_ = questions.map((item,i) => <QuestionCard key={i} title={item.title} answers={item.answers}/> );
 
@@ -37,10 +38,12 @@ function PollBody() {
     <div class="container">
       <div class="row">
         <div class="col">
+            asd
         </div>
         <div class="col-6">
-          <PollTitle title={items.poll_title}/>
-          {card_}
+            <Container>
+                {props.children }
+            </Container>
         </div>
         <div class="col">
         </div>
@@ -50,4 +53,4 @@ function PollBody() {
 }
 
 
-export default PollBody;
+export default MainBody;
