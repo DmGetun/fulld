@@ -4,8 +4,9 @@ import '../static/style.css'
 
 function QuestionCardTemplate(props){
 
-    const [AnswersCount,AddAnswer] = useState(2)
-    let answers = [...Array(AnswersCount)].map((e, i) => <AnswerField/>);
+  const [AnswersCount,AddAnswer] = useState(2)
+  let answers = [...Array(AnswersCount)].map((e, i) => <AnswerField/>);
+  updateData = props.updateData;
 
   return (
     <div class="card question_card question-card">

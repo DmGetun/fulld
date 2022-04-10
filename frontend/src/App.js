@@ -9,8 +9,8 @@ import {
 } from "react-router-dom";
 import Banner from './templates/Banner';
 import AuthForm from './templates/Forms/AuthForm';
-import QuestionTemplate from './templates/CreatePoll/QuestionTemplate';
-import MainBody from './templates/Polls/MainBody'
+import PassBody from './templates/PassPolls/PassBody';
+import CreatePollBody from './templates/CreatePoll/CreatePollBody';
 
 
 function App() {
@@ -19,7 +19,8 @@ function App() {
           <Layout>
             <Routes>
               <Route path='/' element = {<Banner/>}/>
-              <Route path='/opros' element={<MainBody><PollBody/></MainBody>}/>
+              <Route path='/opros' element={<PassBody/>}/>
+              <Route path='/create' element={<CreatePollBody/>}/>
               <Route path='*' element={<h1 align='center'>Пошел нахуй</h1>}/>
             </Routes>
           </Layout>
