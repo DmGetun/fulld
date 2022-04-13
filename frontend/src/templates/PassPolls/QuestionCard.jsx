@@ -1,8 +1,9 @@
 import React from 'react';
+import '../static/style.css'
 
 function QuestionCard(props){
   return (
-    <div class="card question_card">
+    <div class="question-card card  question_card ">
       <div class="card-body">
         <h5 class="card-title">{props.title}</h5>
           {props.answers.map((item) =>

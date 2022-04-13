@@ -1,37 +1,21 @@
 import React, { useState } from 'react';
 import { Button } from 'reactstrap';
 import '../static/style.css'
+import Answers from './Answers';
+import AnswerField from './AnswerField';
 
 function QuestionCardTemplate(props){
 
-  const [AnswersCount,AddAnswer] = useState(2)
-  let answers = [...Array(AnswersCount)].map((e, i) => <AnswerField/>);
-  updateData = props.updateData;
 
   return (
     <div class="card question_card question-card">
       <div class="card-body">
-          <div>
-            <input type='text' placeholder={props.holder} class='question-field'/>
-          </div>
-          <div>
-            {answers}
-          </div>
-          
-        <Button color='link' onClick={() => AddAnswer(AnswersCount + 1)}>
-            Добавить ответ
-        </Button>
+          { props.children[0] }
+          { props.children[1] }
+          { props.children[2] }
       </div>
     </div>
   )
-}
-
-function AnswerField() {
-    return(
-        <div>
-            <input type='text' placeholder="Введите ответ" class='answer-field'/>
-        </div>
-    );
 }
 
 export default QuestionCardTemplate;

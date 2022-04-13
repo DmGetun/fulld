@@ -7,9 +7,8 @@ function CreatePollBody(props) {
     <div class="container">
       <div class="row">
         <div class="col">
-          asd
         </div>
-        <div class="col-6">
+        <div class="col-12">
             <CreatePoll />
         </div>
         <div class="col">
