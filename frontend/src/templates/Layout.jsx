@@ -1,5 +1,6 @@
 import { Container } from "reactstrap";
 import Footer from './Footer'
+import './static/style.css'
 
 function Layout(props) {
 

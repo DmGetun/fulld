@@ -1,9 +1,14 @@
+import '../static/style.css'
+
 function AnswerField(props) {
 
     let changeValue = props.changeValue;
     let id = props.id;
     return(
-      <input onChange={(e) => changeValue(e)} id={id} type='text' placeholder="Введите ответ" class='answer-field'/>
+      <div class='input-group'>
+        <input onChange={(e) => changeValue(e)} id={id} type='text' class='answer-field' required placeholder=' '></input>
+        <label class='answer-label'>Вариант ответа</label>
+      </div>
     );
 }
 

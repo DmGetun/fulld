@@ -37,18 +37,9 @@ function MainBody(props) {
 
   return (
     <div class="container">
-      <div class="row">
-        <div class="col">
-            asd
-        </div>
-        <div class="col-6">
             <Container>
                 {props.children }
             </Container>
-        </div>
-        <div class="col">
-        </div>
-      </div>
     </div>
   );
 }

@@ -3,22 +3,18 @@ import QuestionCard from './QuestionCard'
 import PollTitle from '../Cards/PollTitle'
 
 function PassPollBody(props) {
-    let items = JSON.parse(props.items);
-    let title = items['poll_title'];
+    let items = props.items;
+    let title = items['title'];
     let questions = items['questions'];
-    let card = questions.map((item,i) => <QuestionCard key={i} title={item.title} answers={item.answers}/> );
+    let cards = questions.map((item,i) => <QuestionCard key={i} title={item.title} answers={item.answers}/> );
 
   return (
     <div class="container">
-      <div class="row">
-        <div class="col">
-        </div>
         <div class="col-6">
-          {card}
+          {
+            cards.map(card => (<div>{card}</div>))
+          }
         </div>
-        <div class="col">
-        </div>
-      </div>
     </div>
   );
 }

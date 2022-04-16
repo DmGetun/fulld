@@ -6,7 +6,6 @@ import AnswerField from './AnswerField';
 
 function QuestionCardTemplate(props){
 
-
   return (
     <div class="card question_card question-card">
       <div class="card-body">

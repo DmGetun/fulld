@@ -7,8 +7,8 @@ function QuestionCard(props){
       <div class="card-body">
         <h5 class="card-title">{props.title}</h5>
           {props.answers.map((item) =>
-           <p class="card-text">{item}</p>
-          )}
+           (<p class="card-text">{item.title}</p>
+          ))}
       </div>
     </div>
   )

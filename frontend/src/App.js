@@ -15,12 +15,14 @@ import CreatePollBody from './templates/CreatePoll/CreatePollBody';
 
 function App() {
   return (
-    <div>
+    <div className='body justify-content-center'>
           <Layout>
             <Routes>
               <Route path='/' element = {<Banner/>}/>
-              <Route path='/opros' element={<PassBody/>}/>
+              <Route path='/opros/:poll' element={<PassBody/>}/>
+              <Route path='/opros/' element={<PassBody/>}/>
               <Route path='/create' element={<CreatePollBody/>}/>
+              <Route path='/login' element={<AuthForm/>}/>
               <Route path='*' element={<h1 align='center'>Пошел нахуй</h1>}/>
             </Routes>
           </Layout>

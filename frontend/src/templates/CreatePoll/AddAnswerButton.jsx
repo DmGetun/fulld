@@ -5,7 +5,7 @@ function AddAnswerButton(props) {
     let id = 'question_' + props.id;
     let addAnswer = props.AddAnswer;
     return(
-        <Button id={id} color='link' onClick={(e) => props.AddAnswer(e) }>
+        <Button id={id} color='link' className='link' onClick={(e) => props.AddAnswer(e) }>
             Добавить ответ
         </Button>
     );

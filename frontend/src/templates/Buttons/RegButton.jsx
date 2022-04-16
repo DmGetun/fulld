@@ -1,11 +1,12 @@
 import React from "react";
 import { Button } from 'reactstrap';
+import '../static/style.css'
 
 function RegButton() {
 
 
     return(
-        <Button variant="Войти" onClick={() => window.location.assign("http://localhost:3000/registr")}>
+        <Button className='buttons btn-lg' variant="Войти" onClick={() => window.location.assign("http://localhost:3000/registr")}>
           Зарегистрироваться
         </Button>
     );

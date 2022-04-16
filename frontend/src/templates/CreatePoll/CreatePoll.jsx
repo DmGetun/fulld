@@ -8,6 +8,7 @@ import { findDOMNode } from 'react-dom';
 import QTitleField from './QTitleField';
 import AnswerField from './AnswerField';
 import AddAnswerButton from './AddAnswerButton';
+import PollTitleField from './PollTitleField';
 
 function CreatePoll(props){
 
@@ -17,6 +18,7 @@ function CreatePoll(props){
   const [answersCount,AddAnswer] = useState({'question_1': 2});
   const [answers,AddAnswer_] = useState([]);
   const [questionsValue, AddQuestion] = useState({});
+  const [pollTitle, ChangePollTitle] = useState();
 
   function AddQuestionAnswer(event) {
     let id = event.target.id;
@@ -53,14 +55,10 @@ function CreatePoll(props){
 
   return (
     <div class="container">
-      <div class="row">
-        <div class="col">
-        </div>
-        <div class="col-6">
+        <div class="">
           <form onSubmit={SendPoll}>  
-
+            <PollTitleField changeValue={ChangePollTitle}/>
             {cards}
-
             <div class='add-question-button'>
               <Button onClick={(e) => AddNewCard(e)}>Добавить вопрос</Button>
             </div>
@@ -69,9 +67,6 @@ function CreatePoll(props){
             </div>
           </form>
         </div>
-        <div class="col">
-        </div>
-      </div>
     </div>
   );
 
@@ -82,7 +77,7 @@ function CreatePoll(props){
     console.log(answersCount); // Массив с количеством ответов для каждого вопроса
     console.log(numberCards); // Количество карт с вопросом
 
-    let poll = {'title':'poll_1'};
+    let poll = {'title': pollTitle};
     poll['questions'] = [];
     let questions = {};
     let keys = Object.keys(answers);

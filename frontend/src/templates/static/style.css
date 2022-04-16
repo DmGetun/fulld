@@ -2,6 +2,14 @@
     box-sizing: border-box;
 }
 
+:root {
+    --yellow:#F8E9A1;
+    --red:#F76C6C;
+    --light-blue:#2E9CCA;
+    --blue:#374785;
+    --dark-blue:#24305E;
+}
+
 .center {
     text-align: center;
 }
@@ -16,9 +24,11 @@
 }
 
 .question-card {
+    display:block;
+    position:relative;
     margin-top: 20px;
     border-radius: 30px;
-    background-color: rgb(123, 123, 130);
+    /* background-color: var(--light-blue); */
 }
 
 .add-question-button{
@@ -30,12 +40,88 @@
     margin-right: 10px;
 }
 
+.input-group {
+    position: relative;
+    margin-bottom: 30px;
+}
+
 .answer-field {
-    width: 50%;
+    display:block;
+    font-size: 16px;
     padding: 10px;
-    margin: 2px 0;
-    border: 2px solid #eee;
-    border-radius:10px;
-    box-shadow:0 0 15px 4px rgba(0, 0, 0, 0.06);
-    display:inline;
+    display: block;
+    position:relative;
+    width: 300px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background: none;
+}
+
+.answer-label {
+    display:block;
+    color: #999;
+    font-size: 18px;
+    position: absolute;
+    pointer-events: none;
+    left: 10px;
+    top: 15px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+  }
+
+.answer-field:focus {
+    outline: none;
+    border-bottom: 3px solid black;
+    transition: all 0.05s ease;
+}
+
+.answer-field:not(:placeholder-shown) + .answer-label {
+    top: -15px;
+    font-size: 14px;
+    color: #5264AE;
+}
+
+.answer-field:focus + .answer-label {
+    top: -15px;
+    font-size: 14px;
+    color: #5264AE;
+}
+
+  
+
+.gradient-custom {
+    /* fallback for old browsers */
+    background: #6a11cb;
+    
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+    
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+}
+
+.__border-raduis{
+    border-radius: 1rem;
+}
+
+.auth-form {
+    background-color: #553D67;
+}
+
+.buttons {
+    background-color: var(--red);
+    margin-right: 5px;
+}
+.buttons:hover {
+    background-color: #F64C72;
+}
+
+.body {
+    min-height: 100vh;
+    background-color: var(--dark-blue);
+}
+
+.link {
+    color: var(--yellow);
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, NavLink } from 'reactstrap';
 import RegButton from './Buttons/RegButton';
 import AuthButton from './Buttons/AuthButton';
+import './static/style.css';
 
 function Footer() {
   return (
@@ -13,15 +14,15 @@ function Footer() {
       </a>
       <nav>
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-        <NavLink tag={Link} to='/'>Главная</NavLink>
-        <NavLink tag={Link} to='/opros'>Пройти опрос</NavLink>
-        <NavLink tag={Link} to='/create'>Создать опрос</NavLink>
+        <NavLink className='link' tag={Link} to='/'>Главная</NavLink>
+        <NavLink className='link' tag={Link} to='/opros'>Пройти опрос</NavLink>
+        <NavLink className='link' tag={Link} to='/create'>Создать опрос</NavLink>
       </ul>
       </nav>
 
-      <div class="col-md-3 text-end">
-        <button type="button" class="auth-button btn btn-primary">Войти</button>
-        <button type="button" class="btn btn-outline-primary">Регистрация</button>
+      <div class="text-end">
+        <AuthButton/>
+        <RegButton/>
       </div>
     </header>
   </div>
