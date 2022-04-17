@@ -1,4 +1,3 @@
-import '../static/style.css'
 
 function PollTitle(props){
 

@@ -3,7 +3,6 @@ import { Route, useParams } from "react-router";
 import { Container } from "reactstrap";
 import PassPollBody from './PassPollBody'
 import { useState, useEffect } from "react";
-import QuestionCard from "./QuestionCard";
 
 
 function PassBody(props) {
@@ -23,7 +22,7 @@ function PassBody(props) {
 
   let content = 
     <div class="container">
-        <div class="col-6">
+        <div class=" ">
           { isLoaded ? <PassPollBody items={items}/> : <p>Loading...</p>}
         </div>
     </div>

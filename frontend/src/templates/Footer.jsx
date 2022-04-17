@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Button, NavLink } from 'reactstrap';
 import RegButton from './Buttons/RegButton';
 import AuthButton from './Buttons/AuthButton';
-import './static/style.css';
 
 function Footer() {
   return (

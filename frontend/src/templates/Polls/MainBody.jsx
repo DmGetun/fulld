@@ -1,7 +1,7 @@
 import { Route } from "react-router";
 import { Container } from "reactstrap";
 import { useState, useEffect } from "react";
-import QuestionCard from "../PassPolls/QuestionCard";
+import QuestionCard from "../General/CreateQuestionCard";
 
 
 function MainBody(props) {

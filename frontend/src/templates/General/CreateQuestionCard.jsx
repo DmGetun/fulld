@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
-import { Button } from 'reactstrap';
-import '../static/style.css'
-import Answers from './Answers';
-import AnswerField from './AnswerField';
 
-function QuestionCardTemplate(props){
+function CreateQuestionCard(props){
 
   return (
     <div class="card question_card question-card">
@@ -17,4 +13,4 @@ function QuestionCardTemplate(props){
   )
 }
 
-export default QuestionCardTemplate;
+export default CreateQuestionCard;

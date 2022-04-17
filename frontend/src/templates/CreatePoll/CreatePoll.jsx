@@ -1,9 +1,8 @@
-import QuestionCardTemplate from './QuestionCardTemplate'
+import CreateQuestionCard from '../General/CreateQuestionCard';
 import React, { useEffect, useState } from 'react';
 import { Button } from 'reactstrap';
-import '../static/style.css'
 import axios from 'axios';
-import Answers from './Answers';
+import Answers from '../General/Answers';
 import { findDOMNode } from 'react-dom';
 import QTitleField from './QTitleField';
 import AnswerField from './AnswerField';
@@ -41,16 +40,16 @@ function CreatePoll(props){
   }
 
   let cards = [...Array(numberCards)].map((card,question_id) =>
-  <QuestionCardTemplate AddAnswer={AddAnswer} key={question_id}>
+  <CreateQuestionCard AddAnswer={AddAnswer} key={question_id}>
     <QTitleField id={question_id} changeValue={ChangeQuestionValue} key='asd'/>
     <Answers key='asad2'>
       { [...Array(answersCount['question_'+ (question_id + 1)])].map((answer,answer_id) => 
-        <AnswerField id={question_id + 1 + '_' + (answer_id + 1)} changeValue={ChangeAnswerValue}></AnswerField>
+        <AnswerField id={question_id + 1 + '_' + (answer_id + 1)} changeValue={ChangeAnswerValue} type='text'></AnswerField>
       ) }
     </Answers>
     <AddAnswerButton id={question_id + 1} AddAnswer={AddQuestionAnswer}></AddAnswerButton>
-  </QuestionCardTemplate>
- )
+  </CreateQuestionCard>
+ );
 
 
   return (

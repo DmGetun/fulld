@@ -1,4 +1,3 @@
-import '../static/style.css'
 function PollTitleField(props) {
 
     let changeValue = props.changeValue;
