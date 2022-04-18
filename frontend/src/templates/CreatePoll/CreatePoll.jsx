@@ -11,7 +11,7 @@ import PollTitleField from './PollTitleField';
 
 function CreatePoll(props){
 
-  const apiURL = 'http://127.0.0.1:8000/add_opros';
+  const apiURL = 'http://127.0.0.1:8000/poll/add';
 
   const [numberCards,AddCard] = useState(1);
   const [answersCount,AddAnswer] = useState({'question_1': 2});

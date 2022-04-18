@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 function PassBody(props) {
   const params = useParams();
   const slug = params.poll;
-  const apiURL = 'http://127.0.0.1:8000/get_opros/' + slug + '/';
+  const apiURL = 'http://127.0.0.1:8000/poll/' + slug + '/';
   const n = 8;
   const [isLoaded, setIsLoaded] = useState(false);
   const [items, setItems] = useState([]);
