@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, NavLink } from 'reactstrap';
 import RegButton from './Buttons/RegButton';
 import AuthButton from './Buttons/AuthButton';
+import AuthContext from '../context/AuthContext';
+import LogoutButton from './Buttons/LogoutButton';
 
 function Footer() {
+
+  let {user, logoutUser} = useContext(AuthContext)
   return (
     <div class="container">
     <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
@@ -18,11 +22,15 @@ function Footer() {
         <NavLink className='link' tag={Link} to='/create'>Создать опрос</NavLink>
       </ul>
       </nav>
-
-      <div class="text-end">
+      { user && <p>Hello, {user.user_id}</p> }
+        { !user ? (
+        <div class="text-end">
         <AuthButton/>
         <RegButton/>
-      </div>
+        </div>
+        ): (
+        <LogoutButton/>
+        )}
     </header>
   </div>
   );

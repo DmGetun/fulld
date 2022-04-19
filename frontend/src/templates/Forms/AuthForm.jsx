@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import AuthContext from '../../context/AuthContext';
 
-function AuthForm() {
 
+function AuthForm(props) {
 
+  let isActive = props.isActive;
+  let setActive = props.setActive;
+  let {loginUser} = useContext(AuthContext);
 
   return (
+    <form onSubmit= {loginUser}>
     <section class="vh-100">
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
@@ -18,13 +23,13 @@ function AuthForm() {
                   <p class="text-white-50 mb-5">Please enter your login and password!</p>
 
                   <div class="input-group">
-                    <input type="text" id="typeEmailX" class="answer-field" placeholder=' ' />
-                    <label class="answer-label" for="typeEmailX">Username</label>
+                    <input type="text" name='username' id="username" class="answer-field" placeholder=' ' />
+                    <label class="answer-label" for="psername">Username</label>
                   </div>
 
                   <div class="input-group">
-                    <input type="password" id="typeEmailX" class="answer-field" placeholder=' '/>
-                    <label class="answer-label" for="typeEmailX">Password</label>
+                    <input type="password" name='password' id="password" class="answer-field" placeholder=' '/>
+                    <label class="answer-label" for="password">Password</label>
                   </div>
 
                   <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
@@ -48,6 +53,7 @@ function AuthForm() {
         </div>
       </div>
     </section>
+    </form>
   );
 }
 
