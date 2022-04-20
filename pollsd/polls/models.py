@@ -5,8 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 class Poll(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=70,blank=True)
-    # creator = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
-    creator = models.IntegerField(default=1)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
 
     def __str__(self):
         return self.title

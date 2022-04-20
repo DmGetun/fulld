@@ -10,8 +10,8 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('', views.index, name='index'),
     path('user/login',login),
-    path('api/token', MyTokenObtainPairView.as_view(), name='token_pair'),
-    path('api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('user/token', MyTokenObtainPairView.as_view(), name='token_pair'),
+    path('user/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('poll',get_opros),
     path('poll/<slug:slug>/',get_opros),
     path('poll/create',add_opros),

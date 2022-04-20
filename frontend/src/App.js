@@ -23,15 +23,16 @@ function App() {
           <Layout>
             <Routes>
               <Route path='/' element = {<Banner/>}/>
-              <Route path='/opros/:poll' element={<PassBody/>}/>
+              <Route path='/user/registr' element = {<RegistrationForm/>}/>
+              <Route path='/user/login' element={<AuthForm/>}/>
+
               <Route path='/opros/' element={<PassBody/>}/>
+              <Route path='/opros/:poll' element={<PassBody/>}/>
               <Route path='/create' element={
                 <PrivateRoute>
                   <CreatePollBody/>
                 </PrivateRoute>
               }/>
-              <Route path='/user/login' element={<AuthForm/>}/>
-              <Route path='/registr' element = {<RegistrationForm/>}/>
               <Route path='*' element={<h1 align='center'>Пошел нахуй</h1>}/>
             </Routes>
           </Layout>

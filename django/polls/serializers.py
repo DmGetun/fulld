@@ -42,11 +42,12 @@ class PollSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(max_length=255)
     questions = QuestionSerializer(many=True)
+    creator = serializers.IntegerField()
 
 
     class Meta:
         model = Poll
-        fields = ['id','title','questions']
+        fields = ['id','title','questions','creator']
 
 
     def create(self, validated_data):
@@ -54,8 +55,9 @@ class PollSerializer(serializers.ModelSerializer):
 
 
     def save(self, *args, **kwargs):
+        print(self.data)
         slug = get_unique_slug(Poll,self.data['title'])
-        p = Poll.objects.create(title=self.data['title'],slug=slug)
+        p = Poll.objects.create(title=self.data['title'],slug=slug,creator=self.data['creator'])
         for q in self.data['questions']:
             q = QuestionSerializer(data=q)
             if q.is_valid():

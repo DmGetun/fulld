@@ -19,7 +19,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
-import jwt
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -66,11 +65,16 @@ def get_opros(request,slug = None):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
-    serializer = PollSerializer(data=request.data)
+    serializer = PollSerializer(data=request.data,context={'request': request})
     if serializer.is_valid():
         poll = serializer.save() 
+        print(poll)
         return Response(PollSerializer(poll).data,status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def add_user(request):
+    print(request.data)
 
 
 @api_view(["POST"])
@@ -81,8 +85,5 @@ def receive_poll(request):
         choose = serializer.save()
         return Response(ChooseSerializer(choose).data)
     return Response(serializer.errors)
-
-def get_polls_on_id(request):
-    pass
     
 

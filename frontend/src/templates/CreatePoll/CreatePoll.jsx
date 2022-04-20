@@ -1,5 +1,5 @@
 import CreateQuestionCard from '../General/CreateQuestionCard';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Button } from 'reactstrap';
 import axios from 'axios';
 import Answers from '../General/Answers';
@@ -8,16 +8,25 @@ import QTitleField from './QTitleField';
 import AnswerField from './AnswerField';
 import AddAnswerButton from './AddAnswerButton';
 import PollTitleField from './PollTitleField';
+import AuthContext from '../../context/AuthContext'
 
 function CreatePoll(props){
 
   const apiURL = 'http://127.0.0.1:8000/poll/create';
+  let {user, authTokens} = useContext(AuthContext);
 
   const [numberCards,AddCard] = useState(1);
   const [answersCount,AddAnswer] = useState({'question_1': 2});
   const [answers,AddAnswer_] = useState([]);
   const [questionsValue, AddQuestion] = useState({});
   const [pollTitle, ChangePollTitle] = useState();
+
+  const [questions, SetQuestion] = useState([]);
+
+  function SetQuestionTitle(e) {
+    let title = e.target.value;
+    SetQuestion(...questions,[{'title':title}])
+  }
 
   function AddQuestionAnswer(event) {
     let id = event.target.id;
@@ -41,7 +50,7 @@ function CreatePoll(props){
 
   let cards = [...Array(numberCards)].map((card,question_id) =>
   <CreateQuestionCard AddAnswer={AddAnswer} key={question_id}>
-    <QTitleField id={question_id} changeValue={ChangeQuestionValue} key='asd'/>
+    <QTitleField id={question_id} changeValue={ChangeQuestionValue} key={question_id}/>
     <Answers key='asad2'>
       { [...Array(answersCount['question_'+ (question_id + 1)])].map((answer,answer_id) => 
         <AnswerField id={question_id + 1 + '_' + (answer_id + 1)} changeValue={ChangeAnswerValue} type='text'></AnswerField>
@@ -69,14 +78,16 @@ function CreatePoll(props){
     </div>
   );
 
-  function SendPoll(e) {
+  async function SendPoll(e) {
     e.preventDefault();
-    // cards.map(card => console.log(findDOMNode(card).getElementsByClassName('answer-field')));
     console.log(answers); // Массив с текстом каждого ответа
     console.log(answersCount); // Массив с количеством ответов для каждого вопроса
     console.log(numberCards); // Количество карт с вопросом
 
-    let poll = {'title': pollTitle};
+    let poll = {
+      'title': pollTitle,
+      'creator': user.user_id,
+    };
     poll['questions'] = [];
     let questions = {};
     let keys = Object.keys(answers);
@@ -98,10 +109,14 @@ function CreatePoll(props){
     }
     console.log(poll);
     console.log(questionsValue);
-    axios({
-      method: 'post',
-      url: apiURL,
-      data: poll
+    console.log(user)
+    let response = fetch(apiURL, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + String(authTokens?.access),
+      },
+      body: JSON.stringify(poll)
     })
   }
 
