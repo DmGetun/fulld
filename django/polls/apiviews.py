@@ -1,3 +1,4 @@
+from polls import serializers
 from rest_framework import status
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
@@ -66,6 +67,7 @@ def get_opros(request,slug = None):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
+    print(request.data)
     serializer = PollSerializer(data=request.data)
     if serializer.is_valid():
         poll = serializer.save() 
@@ -82,7 +84,12 @@ def receive_poll(request):
         return Response(ChooseSerializer(choose).data)
     return Response(serializer.errors)
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated,])
 def get_polls_on_id(request):
-    pass
+    user_id = request.user.id
+    p = Poll.objects.filter(creator=user_id)
+    serializer = PollSerializer(p, many=True)
+    return Response(json.dumps(serializer.data))
     
 

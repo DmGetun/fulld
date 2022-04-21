@@ -1,5 +1,6 @@
-# 1. Переделать запросы к API на нормальные
-# 2. Переделать ответ API GET на нормальный
+# TODO:
+## 2. Переделать ответ API GET на нормальный
+## 3. Добавить отображение опросов, созданных пользователем
 
 ### Документация API
 ### Чтобы получить токен пользователя:
@@ -26,15 +27,16 @@ curl --location --request POST 'http://localhost:8000/user/token/refresh' \
 --form 'refresh=%refresh' \
 ```
 
-### Чтобы обновить токен пользователя:
+### Получить опросы, созданные пользователем:
 * Request method: POST
-* URL: http://localhost:8000/user/token/refresh
+* URL: http://127.0.0.1:8000/polls
 * Body: 
-    * refresh: 
+    * username: 
 * Example:
 ```
 curl --location --request POST 'http://localhost:8000/user/token/refresh' \
---form 'refresh=%refresh' \
+--form 'username=%username' \
 ```
+
 
 

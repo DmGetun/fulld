@@ -1,7 +1,6 @@
 import CreateQuestionCard from '../General/CreateQuestionCard';
 import React, { useEffect, useState, useContext } from 'react';
 import { Button } from 'reactstrap';
-import axios from 'axios';
 import Answers from '../General/Answers';
 import { findDOMNode } from 'react-dom';
 import QTitleField from './QTitleField';
@@ -15,48 +14,56 @@ function CreatePoll(props){
   const apiURL = 'http://127.0.0.1:8000/poll/create';
   let {user, authTokens} = useContext(AuthContext);
 
-  const [numberCards,AddCard] = useState(1);
-  const [answersCount,AddAnswer] = useState({'question_1': 2});
-  const [answers,AddAnswer_] = useState([]);
-  const [questionsValue, AddQuestion] = useState({});
-  const [pollTitle, ChangePollTitle] = useState();
+  // Добавить карточку с вопросом
+  const [numberCards,addCard] = useState(1);
+  function addNewCard() {
+    addCard(numberCards + 1);
+    let question = 'question_' + numberCards;
+    addAnswer({...countAnswers,[question] : 2});
+    setTitleValue({...qTitleValues,[numberCards]: ''});
+  }
+  
+  // Добавить вариант ответа к вопросу
+  const [countAnswers, addAnswer] = useState({'question_0' : 2});
+  function addNewAnswer(e) {
+    let question_id = e.target.id;
+    let count = countAnswers[question_id];
+    addAnswer({...countAnswers,[question_id] : count + 1});
+  }
+  
+  const [pollTitle, setQuestion] = useState('');
 
-  const [questions, SetQuestion] = useState([]);
-
-  function SetQuestionTitle(e) {
+  // Установить название Опроса
+  function setPollTitle(e) {
     let title = e.target.value;
-    SetQuestion(...questions,[{'title':title}])
+    setQuestion(title)
   }
 
-  function AddQuestionAnswer(event) {
-    let id = event.target.id;
-    let question = answersCount[id];
-    AddAnswer({...answersCount,[id]: question + 1})
+  // Установить название вопроса
+  const [qTitleValues, setTitleValue] = useState({});
+  function setQuestionTitle(e) {
+    let title = e.target.value;
+    let id = e.target.id.slice(e.target.id.indexOf('_') + 1);
+    setTitleValue({...qTitleValues,[id] :title});
   }
 
-  function AddNewCard(event) {
-    AddCard(numberCards + 1);
-    AddAnswer({...answersCount,['question_' + (numberCards + 1)]: 2});
-  }
-
-  function ChangeAnswerValue(event) {
-    AddAnswer_({...answers,[event.target.id]: event.target.value})
-  }
-
-  function ChangeQuestionValue(event) {
-    let id = event.target.id;
-    AddQuestion({...questionsValue,[id]:event.target.value});
+  const [answersValue, setAnswerValue] = useState({});
+  function setAnswer(e) {
+    let text = e.target.value;
+    let name = e.target.name;
+    let answer_id = e.target.id;
+    setAnswerValue({...answersValue,[name]: {...answersValue[name],[answer_id]: text}})
   }
 
   let cards = [...Array(numberCards)].map((card,question_id) =>
-  <CreateQuestionCard AddAnswer={AddAnswer} key={question_id}>
-    <QTitleField id={question_id} changeValue={ChangeQuestionValue} key={question_id}/>
-    <Answers key='asad2'>
-      { [...Array(answersCount['question_'+ (question_id + 1)])].map((answer,answer_id) => 
-        <AnswerField id={question_id + 1 + '_' + (answer_id + 1)} changeValue={ChangeAnswerValue} type='text'></AnswerField>
+  <CreateQuestionCard>
+    <QTitleField key={question_id} id = {'title_' + question_id} changeValue={setQuestionTitle}/>
+    <Answers>
+      { [...Array(countAnswers['question_' + question_id])].map((answer,answer_id) => 
+        <AnswerField name={question_id} question_id={question_id} id={answer_id} changeValue={setAnswer}></AnswerField>
       ) }
     </Answers>
-    <AddAnswerButton id={question_id + 1} AddAnswer={AddQuestionAnswer}></AddAnswerButton>
+    <AddAnswerButton id={question_id} onClick={(e) => addNewAnswer(e)}></AddAnswerButton>
   </CreateQuestionCard>
  );
 
@@ -65,10 +72,10 @@ function CreatePoll(props){
     <div class="container">
         <div class="">
           <form onSubmit={SendPoll}>  
-            <PollTitleField changeValue={ChangePollTitle}/>
+            <PollTitleField changeValue={setPollTitle}/>
             {cards}
             <div class='add-question-button'>
-              <Button onClick={(e) => AddNewCard(e)}>Добавить вопрос</Button>
+              <Button onClick={(e) => addNewCard(e)}>Добавить вопрос</Button>
             </div>
             <div class='add-question-button'>
               <Button type='submit'>Сохранить</Button>
@@ -79,47 +86,38 @@ function CreatePoll(props){
   );
 
   async function SendPoll(e) {
-    e.preventDefault();
-    console.log(answers); // Массив с текстом каждого ответа
-    console.log(answersCount); // Массив с количеством ответов для каждого вопроса
-    console.log(numberCards); // Количество карт с вопросом
+    e.preventDefault(); 
+    let questions = [];
+    let titleValues = Object.values(qTitleValues);
+    let answersValues = Object.values(answersValue);
+
+    for(let i = 0; i < numberCards;i++){
+      let answers = []
+      for(let j = 0; j < countAnswers['question_' + i];j++){
+        let answer = {'order': j, 'title': answersValues[i][j]};
+        answers.push(answer);
+      }
+      questions.push({'title': titleValues[i], 'answers': answers});
+    }
 
     let poll = {
       'title': pollTitle,
       'creator': user.user_id,
-    };
-    poll['questions'] = [];
-    let questions = {};
-    let keys = Object.keys(answers);
-    for (let i = 1; i < numberCards + 1; i++) {
-      let question_number = 'question_' + i;
-      let result = keys.filter(key => key.startsWith(i));
-      let answers_t = [];
-
-      for (let i = 1; i < result.length + 1;i++){
-        let answer = {"title": answers[result[i - 1]],"order": i};
-        answers_t.push(answer);
-        console.log(answers_t);
-      }
-      let qValue = questionsValue[i-1];
-      let question = {};
-      question['title'] = qValue;
-      question['answers'] = answers_t;
-      poll['questions'].push(question);
+      'questions':questions
     }
-    console.log(poll);
-    console.log(questionsValue);
-    console.log(user)
-    let response = fetch(apiURL, {
+
+    let response = await fetch(apiURL, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + String(authTokens?.access),
+        'Authorization': 'Bearer ' + String(authTokens?.access)
       },
       body: JSON.stringify(poll)
     })
-  }
 
+    let data = await response.json();
+    console.log(data)
+  }
 }
 
 export default CreatePoll;

@@ -40,6 +40,3 @@ class Choose(models.Model):
     poll = models.ForeignKey(Poll,related_name='poll',on_delete=models.CASCADE)
     question = models.ForeignKey(Question,related_name='question',on_delete=models.CASCADE)
     choose = models.IntegerField()
-
-    
-

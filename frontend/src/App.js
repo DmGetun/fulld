@@ -14,7 +14,7 @@ import CreatePollBody from './templates/CreatePoll/CreatePollBody';
 import RegistrationForm from './templates/Forms/RegistrationForm';
 import PrivateRoute from './utils/PrivateRoute';
 import AuthProvider from './context/AuthContext';
-
+import Polls from './templates/user/polls';
 
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
               <Route path='/' element = {<Banner/>}/>
               <Route path='/user/registr' element = {<RegistrationForm/>}/>
               <Route path='/user/login' element={<AuthForm/>}/>
-
+              <Route path='/polls' element={<Polls/>}/>
               <Route path='/opros/' element={<PassBody/>}/>
               <Route path='/opros/:poll' element={<PassBody/>}/>
               <Route path='/create' element={

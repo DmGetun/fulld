@@ -20,6 +20,7 @@ function Footer() {
         <NavLink className='link' tag={Link} to='/'>Главная</NavLink>
         <NavLink className='link' tag={Link} to='/opros'>Пройти опрос</NavLink>
         <NavLink className='link' tag={Link} to='/create'>Создать опрос</NavLink>
+        <NavLink className='link' tag={Link} to='/polls'>Мои опросы</NavLink>
       </ul>
       </nav>
       { user && <p>Hello, {user.user_id}</p> }

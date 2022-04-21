@@ -13,7 +13,6 @@ function Layout(props) {
             <Container>
                 {props.children}
             </Container>
-            <AuthForm active={isActive} setActive={setActive}/>
         </div>
     );
 }
