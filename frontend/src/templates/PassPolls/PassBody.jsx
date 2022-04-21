@@ -5,12 +5,12 @@ import PassPollBody from './PassPollBody'
 import { useState, useEffect } from "react";
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
-
+import { API_URL_TAKE_POLL } from '../static/constants';
 
 function PassBody(props) {
   const params = useParams();
   const slug = params.poll;
-  const apiURL = 'http://127.0.0.1:8000/poll/' + slug + '/';
+  const apiURL = API_URL_TAKE_POLL + slug + '/';
   const [isLoaded, setIsLoaded] = useState(false);
   const [items, setItems] = useState([]);
 

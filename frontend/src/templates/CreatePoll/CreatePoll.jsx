@@ -8,10 +8,11 @@ import AnswerField from './AnswerField';
 import AddAnswerButton from './AddAnswerButton';
 import PollTitleField from './PollTitleField';
 import AuthContext from '../../context/AuthContext'
+import { API_URL_CREATE_POLL } from '../static/constants';
 
 function CreatePoll(props){
 
-  const apiURL = 'http://127.0.0.1:8000/poll/create';
+  const apiURL = API_URL_CREATE_POLL;
   let {user, authTokens} = useContext(AuthContext);
 
   // Добавить карточку с вопросом

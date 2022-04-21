@@ -2,13 +2,11 @@
     box-sizing: border-box;
 }
 
-:root {
-    --yellow:#F8E9A1;
-    --red:#F76C6C;
-    --light-blue:#2E9CCA;
-    --blue:#374785;
-    --dark-blue:#24305E;
-}
+$yellow:#F8E9A1;
+$red:#F76C6C;
+$light-blue:#2E9CCA;
+$blue:#374785;
+$dark-blue:#24305E;
 
 .center {
     text-align: center;
@@ -28,7 +26,6 @@
     position:relative;
     margin-top: 20px;
     border-radius: 30px;
-    /* background-color: var(--light-blue); */
 }
 
 .add-question-button{
@@ -70,22 +67,24 @@
     -webkit-transition: 0.2s ease all;
   }
 
-.answer-field:focus {
-    outline: none;
-    border-bottom: 3px solid black;
-    transition: all 0.05s ease;
-}
+.answer-field{
+    &:focus {
+        outline: none;
+        border-bottom: 3px solid black;
+        transition: all 0.05s ease;
+    }
 
-.answer-field:not(:placeholder-shown) + .answer-label {
-    top: -15px;
-    font-size: 14px;
-    color: #5264AE;
-}
+    &:not(:placeholder-shown) + .answer-label {
+        top: -15px;
+        font-size: 14px;
+        color: #5264AE;
+    }
 
-.answer-field:focus + .answer-label {
-    top: -15px;
-    font-size: 14px;
-    color: #5264AE;
+    &:focus + .answer-label {
+        top: -15px;
+        font-size: 14px;
+        color: #5264AE;
+    }
 }
 
   
@@ -110,20 +109,21 @@
 }
 
 .buttons {
-    background-color: var(--red);
+    background-color: $red;
     margin-right: 5px;
-}
-.buttons:hover {
-    background-color: #F64C72;
+
+    &:hover {
+        background-color: #F64C72;
+    }
 }
 
 .body {
     min-height: 100vh;
-    background-color: var(--dark-blue);
+    background-color: $dark-blue;
 }
 
 .link {
-    color: var(--yellow);
+    color: $yellow;
 }
 
 h1 {
@@ -140,13 +140,6 @@ $text-color: mix(#000, $primary-color, 64%);
 	position: relative;
 	overflow: hidden;
 	margin-bottom: 0.375em;
-	/* Accessible outline */
-	/* Remove comment to use */ 
-	/*
-		&:focus-within {
-				outline: .125em solid $primary-color;
-		}
-	*/
 
 	input {
 		position: absolute;

@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import jwtDecode from "jwt-decode";
+import { API_URL_GET_USER_TOKEN, API_URL_USER_TOKEN_REFRESH } from "../templates/static/constants";
 
 const AuthContext = createContext(); 
 
@@ -13,10 +14,11 @@ export const AuthProvider = ({children}) => {
     let [loading,setLoading] = useState(true);
 
     let loginUser = async(e) => {
+        e.preventDefault();
         let username = e.target.username.value;
         let password = e.target.password.value;
-        e.preventDefault();
-        let response = await fetch('http://localhost:8000/user/token', {
+        const apiURL = API_URL_GET_USER_TOKEN;
+        let response = await fetch(apiURL, {
             method:'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -41,8 +43,8 @@ export const AuthProvider = ({children}) => {
     }
 
     let updateToken = async ()=> {
-        console.log('Updated token!');
-        let response = await fetch('http://localhost:8000/user/token/refresh', {
+        const apiURL = API_URL_USER_TOKEN_REFRESH;
+        let response = await fetch(apiURL, {
             method:'POST',
             headers: {
                 'Content-Type': 'application/json'
