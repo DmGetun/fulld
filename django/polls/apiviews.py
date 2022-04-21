@@ -67,10 +67,10 @@ def get_opros(request,slug = None):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
-    print(request.data)
-    serializer = PollSerializer(data=request.data)
+    context = request.data['questions']
+    serializer = PollSerializer(data=request.data,context={'questions': context})
     if serializer.is_valid():
-        poll = serializer.save() 
+        poll = serializer.create(validated_data=request.data)
         return Response(PollSerializer(poll).data,status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

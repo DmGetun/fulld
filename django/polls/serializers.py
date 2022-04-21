@@ -13,30 +13,39 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ['id','title','order']
 
     def create(self, validated_data):
-        return Answer.objects.create(**validated_data)
+        print(validated_data)
+        answer = Answer.objects.create(
+            title = validated_data['title'],
+            order = validated_data['order'],
+            question = self.context['question']
+        )
+        answer.save()
 
 class QuestionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(max_length=255)
-    poll = serializers.StringRelatedField()
-    answers = AnswerSerializer(many=True)
+    poll = serializers.SlugRelatedField(slug_field='title',read_only=True)
+    answers = AnswerSerializer(many=True,read_only=True)
 
     class Meta:
         model = Question
         fields = ['id','title','poll','answers']
 
-    def create(self, validated_data):
-        return Question.objects.create(**validated_data)
+    def create(self,validated_data):
+        answers = validated_data['answers']
+        poll = self.context['poll']
 
-    def save(self, *args, **kwargs):
-        print(self.data)
-        title = self.data['title']
-        poll = kwargs['poll']
-        q = Question.objects.create(title=title,poll=poll)
-        for answer in self.data['answers']:
-            a = AnswerSerializer(data=answer)
-            if a.is_valid():
-                a.save(question=q)
+        question = Question.objects.create(
+            title=validated_data['title'],
+            poll=poll
+        )
+
+        a = AnswerSerializer(data=answers,context={'question': question},many=True)
+        print(a.is_valid())
+        if a.is_valid():
+            a.create(validated_data=validated_data['answers'])
+        question.save()
+
 
 class PollSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -49,19 +58,21 @@ class PollSerializer(serializers.ModelSerializer):
         model = Poll
         fields = ['id','title','questions','creator']
 
-
     def create(self, validated_data):
-        return Poll.objects.create(**validated_data)
+        questions = self.context['questions']
+        poll = Poll.objects.create(
+            title = validated_data.get('title', None),
+            creator = validated_data.get('creator', None),
+        )
+        
+        q = QuestionSerializer(data=questions,context={'poll': poll},many=True)
+        if q.is_valid():
+            q.create(validated_data=questions)
+        poll.save()
+
+        
 
 
-    def save(self, *args, **kwargs):
-        print(self.data)
-        slug = get_unique_slug(Poll,self.data['title'])
-        p = Poll.objects.create(title=self.data['title'],slug=slug,creator=self.data['creator'])
-        for q in self.data['questions']:
-            q = QuestionSerializer(data=q)
-            if q.is_valid():
-                q.save(poll=p)
 
 class ChooseSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
