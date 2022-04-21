@@ -23,12 +23,12 @@ function Footer() {
         <NavLink className='link' tag={Link} to='/polls'>Мои опросы</NavLink>
       </ul>
       </nav>
-      { user && <p>Hello, {user.user_id}</p> }
+      { user && <div class='username'>{user.username}</div> }
         { !user ? (
-        <div class="text-end">
-        <AuthButton/>
-        <RegButton/>
-        </div>
+          <div class="text-end">
+            <AuthButton/>
+            <RegButton/>
+          </div>
         ): (
         <LogoutButton/>
         )}

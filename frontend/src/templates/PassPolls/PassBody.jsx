@@ -41,7 +41,11 @@ function PassBody(props) {
   let content = 
     <div class="container">
         <div class=" ">
-          { isLoaded ? <PassPollBody items={items}/> : <p>Loading...</p>}
+          {
+            slug ? 
+            isLoaded ? <PassPollBody items={items}/> : <p>Loading...</p>
+            : <h1 align='center'>Укажите ссылку на существующий опрос</h1>
+          }
         </div>
     </div>
 

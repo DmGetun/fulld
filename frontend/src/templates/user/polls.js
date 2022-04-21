@@ -9,6 +9,7 @@ function Polls(props) {
 
     const [polls, setPolls] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isNull, setIsNull] = useState(false);
 
     async function get_add_polls() {
         const apiURL = API_URL_GET_USER_POLLS
@@ -23,7 +24,12 @@ function Polls(props) {
 
         let data = await response.json();
         if(response.status === 200) {
-            setPolls(JSON.parse(data));
+            let polls = JSON.parse(data);
+            if (polls.length === 0) { 
+                setIsNull(true);
+                return;
+            }
+            setPolls();
             setIsLoading(true);
         }
         console.log(JSON.parse(data));
@@ -37,7 +43,8 @@ function Polls(props) {
     return (
         <div>
         {
-            isLoading ?
+            isNull ? <h1 align='center'>У вас нет созданных опросов</h1> 
+            : isLoading ?
             polls.map(poll => (
                 <PollCard title={poll.title} questions={poll.questions} slug={poll.slug} />
             ))
