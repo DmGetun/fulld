@@ -3,9 +3,10 @@ function QTitleField(props){
     let changeValue = props.changeValue;
     let id = props.id;
     return(
-        <div>
+        <div class='title-block'>
           <input id={id} type='text' onChange={(e) => changeValue(e)} 
-          placeholder="Введите вопрос" class='question-field'/>
+            placeholder=" "/>
+          <label>Название вопроса</label>
         </div>
     );
 }

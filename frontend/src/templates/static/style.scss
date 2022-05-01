@@ -21,7 +21,22 @@
     display:block;
     position:relative;
     margin-top: 20px;
-    border-radius: 30px;
+    border-radius: 15px;
+    width:50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.delete-answer-block {
+    img {
+        display: block;
+        float: right;
+        position: relative;
+        top:-50px;
+        right:30px;
+        width:15px;
+        height:15px;
+    }
 }
 
 .add-question-button{
@@ -29,58 +44,76 @@
     text-align:center;
 }
 
+.add-answer-button {
+    color:black;
+}
+
 .auth-button {
     margin-right: 10px;
 }
 
-.input-group {
+%input_style {
     position: relative;
     margin-bottom: 30px;
+
+    label {
+        display:block;
+        color: #999;
+        font-size: 18px;
+        position: absolute;
+        pointer-events: none;
+        left: 10px;
+        top: 15px;
+        transition: 0.2s ease all;
+        -moz-transition: 0.2s ease all;
+        -webkit-transition: 0.2s ease all;
+    }
+
+    input {
+        display:block;
+        font-size: 16px;
+        padding: 10px;
+        display: block;
+        position:relative;
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #ccc;
+        background: none;
+        &:focus {
+            outline: none;
+            border-bottom: 3px solid black;
+            transition: all 0.05s ease;
+        }
+    
+        &:not(:placeholder-shown) + label {
+            top: -15px;
+            font-size: 14px;
+            color: #5264AE;
+        }
+    
+        &:focus + label {
+            top: -15px;
+            font-size: 14px;
+            color: #5264AE;
+        }
+    }
 }
 
-.answer-field {
-    display:block;
-    font-size: 16px;
-    padding: 10px;
-    display: block;
-    position:relative;
-    width: 100%;
-    border: none;
-    border-bottom: 1px solid #ccc;
-    background: none;
+.answer-block {
+    @extend %input_style;
+    width:90%;
 }
 
-.answer-label {
-    display:block;
-    color: #999;
-    font-size: 18px;
-    position: absolute;
-    pointer-events: none;
-    left: 10px;
-    top: 15px;
-    transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -webkit-transition: 0.2s ease all;
-  }
-
-.answer-field{
-    &:focus {
-        outline: none;
-        border-bottom: 3px solid black;
-        transition: all 0.05s ease;
+.title-block {
+    @extend %input_style;
+    label{
+        color:black;
+        font-size: 1.2em;
     }
+}
 
-    &:not(:placeholder-shown) + .answer-label {
-        top: -15px;
-        font-size: 14px;
-        color: #5264AE;
-    }
-
-    &:focus + .answer-label {
-        top: -15px;
-        font-size: 14px;
-        color: #5264AE;
-    }
+.poll-title {
+    @extend %input_style;
 }
 
 .__border-raduis{

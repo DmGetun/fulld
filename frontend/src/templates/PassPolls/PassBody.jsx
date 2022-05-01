@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Route, useParams } from "react-router";
+import { Route, useParams, Routes } from "react-router";
 import { Container } from "reactstrap";
 import PassPollBody from './PassPollBody'
 import { useState, useEffect } from "react";
@@ -8,48 +8,18 @@ import AuthContext from '../../context/AuthContext';
 import { API_URL_TAKE_POLL } from '../static/constants';
 
 function PassBody(props) {
-  const params = useParams();
-  const slug = params.poll;
-  const apiURL = API_URL_TAKE_POLL + slug + '/';
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [items, setItems] = useState([]);
 
   let {authTokens, logoutUser} = useContext(AuthContext);
+  let params = useParams();
+  let slug = params;
 
-  let getPoll = async () => {
-      let response = await fetch(apiURL, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + String(authTokens?.access)
-        }
-      })
-
-      let data = await response.json();
-      if(response.status === 200){
-        setItems(data);
-        setIsLoaded(true);
-      } else if(response.statusText === 'Unauthorized') {
-        logoutUser();
-      }
-  };
-
-  useEffect(() => {
-    getPoll();
-  }, [])
-
-  let content = 
-    <div class="container">
-        <div class=" ">
-          {
-            slug ? 
-            isLoaded ? <PassPollBody items={items}/> : <p>Loading...</p>
-            : <h1 align='center'>Укажите ссылку на существующий опрос</h1>
-          }
-        </div>
-    </div>
-
-  return content;
+  return (    
+    <Routes>
+      <Route path = '/' element = {<PassPollBody/>}></Route>
+      <Route path = '/info' element = {<PassPollBody/>}></Route>
+      <Route path = '/slug' element = {<PassPollBody/>}></Route>
+    </Routes>
+  );
 }
 
 

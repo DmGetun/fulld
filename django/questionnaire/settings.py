@@ -161,7 +161,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:9000",
 ]
 
-#AUTH_USER_MODEL = 'polls.UserAccount'
+#AUTH_USER_MODEL = 'polls.User'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

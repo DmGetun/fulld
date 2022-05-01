@@ -1,18 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useParams,useContext } from 'react';
+import AuthContext from '../../context/AuthContext';
 import PassQuestionCard from '../General/PassQuestionCard';
 import PassTitleField from './PassTitleField';
 import Answers from '../General/Answers';
 import PassAnswerField from './PassAnswerField';
 import { Button } from 'reactstrap';
 import axios from 'axios';
+import { API_URL_TAKE_POLL } from '../static/constants';
 
 function PassPollBody(props) {
 
-    let items = props.items;
-    let title = items['title'];
-    let questions = items['questions'];
+    let {authTokens, logoutUser} = useContext(AuthContext);
 
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [items, setItems] = useState([]);
+    const [isExist, setIsExist] = useState(true);
     let [chooseValues, SetChooseValue] = useState([]);
+
+    const apiURL = API_URL_TAKE_POLL + props.slug + '/';
+
+    let getPoll = async () => {
+      let response = await fetch(apiURL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + String(authTokens?.access)
+        }
+      })
+      let data = await response.json();
+      console.log(data);
+      if(response.status === 200){
+        setItems(data);
+        setIsLoaded(true);
+      } else if(response.status === 401) {
+        logoutUser();
+      } else if(response.status === 404) {
+        setIsExist(false);
+      }
+    };
+
+    useEffect(() => {
+      getPoll();
+    }, [])
 
     function SetChoose(e) {
       let item = e.target;
@@ -23,29 +52,30 @@ function PassPollBody(props) {
       console.log(items)
     }
 
-    let cards = questions.map((question,question_id) =>
-    <PassQuestionCard key={question_id}>
-      <PassTitleField Text={question.title} id={question.id} />
-      <Answers>
-        { questions[question_id]['answers'].map((answer,answer_id) => 
-          <PassAnswerField Name={'question_' + question.id} id={answer_id + 1} 
-                            Text={answer.title} setChoose={SetChoose} key={answer_id}></PassAnswerField>
-        ) }
-      </Answers>
-    </PassQuestionCard>
-   )
+    let title = items.title;
+    let questions = items.questions;
 
   return (
+      !isExist ? <h1 align='center'>Указанного опроса не существует</h1> : 
+      !isLoaded ? <h1 align='center'>Загрузка...</h1> : 
       <div class="container">
         <h1 align='center'>{ title }</h1>
         <form onSubmit={e => SendPoll(e)}>
-          {
-            cards.map(card => (<div>{card}</div>))
-          }
+         { questions.map((question,question_id) =>
+            <PassQuestionCard key={question_id}>
+              <PassTitleField Text={question.title} id={question.id} />
+              <Answers>
+                { questions[question_id]['answers'].map((answer,answer_id) => 
+                  <PassAnswerField Name={'question_' + question.id} id={answer_id + 1} 
+                  Text={answer.title} setChoose={SetChoose} key={answer_id}></PassAnswerField>
+                )}
+              </Answers>
+            </PassQuestionCard>
+         )}
           <Button type='submit'>Сохранить</Button>
-        </form>
+        </form> )
       </div>
-  );
+)
 
   function SendPoll(e) {
     e.preventDefault();

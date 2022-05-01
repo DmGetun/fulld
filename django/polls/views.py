@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from polls.serializers import PollSerializer
 from polls.serializers import QuestionSerializer
-from polls.models import Poll
+from polls.models import Survey
 from polls.models import Question
 from polls.models import Answer
 from polls.models import Answer
@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 def index(request):
-    p = Poll.objects.all()[0]
+    p = Survey.objects.all()[0]
     q = Question.objects.filter(poll=p)
 
     questions = [QuestionSerializer(question).data for question in q]

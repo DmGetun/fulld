@@ -29,10 +29,9 @@ function Polls(props) {
                 setIsNull(true);
                 return;
             }
-            setPolls();
+            setPolls(polls);
             setIsLoading(true);
         }
-        console.log(JSON.parse(data));
     }
 
     useEffect(() => {

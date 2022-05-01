@@ -15,6 +15,7 @@ import RegistrationForm from './templates/Forms/RegistrationForm';
 import PrivateRoute from './utils/PrivateRoute';
 import AuthProvider from './context/AuthContext';
 import Polls from './templates/user/polls';
+import GeneralPage from './templates/PassPolls/GeneralPage';
 
 
 function App() {
@@ -25,15 +26,32 @@ function App() {
               <Route path='/' element = {<Banner/>}/>
               <Route path='/user/registr' element = {<RegistrationForm/>}/>
               <Route path='/user/login' element={<AuthForm/>}/>
-              <Route path='/polls' element={<Polls/>}/>
-              <Route path='/opros/' element={<PassBody/>}/>
-              <Route path='/opros/:poll' element={<PassBody/>}/>
+              
+              <Route path='/polls' element={
+                <PrivateRoute>
+                  <Polls/>
+                </PrivateRoute>
+              }/>
+              
+              <Route exact path='/opros/' element={
+                <PrivateRoute>
+                  <GeneralPage/>
+                </PrivateRoute>
+              }/>
+
+              <Route path='/opros/:slug/*' element={
+                <PrivateRoute>
+                  <PassBody/>
+                </PrivateRoute>
+              }/>
+              
               <Route path='/create' element={
                 <PrivateRoute>
                   <CreatePollBody/>
                 </PrivateRoute>
               }/>
-              <Route path='*' element={<h1 align='center'>Пошел нахуй</h1>}/>
+
+              <Route path='*' element={<h1 align='center'>Указанной страницы не существует</h1>}/>
             </Routes>
           </Layout>
     </div>
