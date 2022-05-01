@@ -16,9 +16,11 @@ function CreatePoll(props){
   const apiURL = API_URL_CREATE_POLL;
   let {user, authTokens} = useContext(AuthContext);
 
+  const answerTemplate = [{title: ''},{title: ''}]
+
   const [questions, addQuestion] = useState([{
     'title': '',
-    'answers': [{title: ''}]
+    'answers': answerTemplate
   }]);
 
   const[survey, AddItem] = useState({
@@ -43,7 +45,7 @@ function CreatePoll(props){
 
     // Добавить карточку с вопросом
     function addNewCard() {
-      addQuestion([...questions,{title: '', answers: null}])
+      addQuestion([...questions,{title: '', answers: answerTemplate}])
     }
 
     // Добавить вариант ответа к вопросу
@@ -95,9 +97,9 @@ function CreatePoll(props){
 
   async function SendPoll(e) {
     e.preventDefault(); 
-
-    survey.questions = questions;
-    console.log(survey);
+    
+    survey['questions'] = questions.map((question,q_id) => ({...question, order: q_id + 1, 
+    answers: [question['answers'].map((answer,id) => ({...answer,order: id + 1}))]}))
 
     let response = await fetch(apiURL, {
       method: "POST",
