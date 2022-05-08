@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from polls.serializers import PollSerializer
+from polls.serializers import SurveySerializer
 from polls.serializers import QuestionSerializer
 from polls.models import Survey
 from polls.models import Question

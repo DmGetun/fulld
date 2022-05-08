@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from polls.serializers import AnswerSerializer, PollSerializer
+from polls.serializers import AnswerSerializer, SurveySerializer
 from polls.serializers import QuestionSerializer
 from polls.models import Survey
 from polls.models import Question
@@ -23,6 +23,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 import jwt
+from .models import User
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -59,43 +60,44 @@ def login(request):
 def get_opros(request,slug = None):
     user = request.user
     if slug is None:
-        p = Poll.objects.all()[0]
+        p = Survey.objects.all()[0]
     else:
         p = get_object_or_404(Survey,slug=slug)
-        return Response(PollSerializer(p).data)
+        return Response(SurveySerializer(p).data)
     return Response({'error': 'Указанный опрос не найден'},status=HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
-    print(request.user)
+    user = User.objects.get(id=request.user.id)
+    print(user)
     context = request.data['questions']
     request.data['slug'] = get_unique_slug(Survey)
-    serializer = PollSerializer(data=request.data,context={'questions': context})
+    serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user})
     if serializer.is_valid():
-        poll = serializer.create(validated_data=request.data)
-        return Response(PollSerializer(poll).data, status=status.HTTP_200_OK)
+        survey = serializer.create(validated_data=request.data)
+        return Response(SurveySerializer(survey).data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
-def receive_poll(request):
+def receive_survey(request):
     print(request.data)
-    serializer = ChooseSerializer(data=request.data)
+    serializer = AnswerSerializer(data=request.data)
     if serializer.is_valid():
         choose = serializer.save()
-        return Response(ChooseSerializer(choose).data,status.HTTP_200_OK)
+        return Response(AnswerSerializer(choose).data,status.HTTP_200_OK)
     return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
-def get_polls_on_id(request):
+def get_surveys_on_id(request):
     user_id = request.user.id
     p = Survey.objects.filter(creator=user_id)
     print(p)
-    serializer = PollSerializer(p, many=True)
+    serializer = SurveySerializer(p, many=True)
     return Response(json.dumps(serializer.data),status=status.HTTP_200_OK)
     
 

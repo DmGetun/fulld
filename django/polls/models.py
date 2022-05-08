@@ -54,4 +54,4 @@ class Answer(models.Model):
     answer = models.IntegerField(default=1)
 
     def __str__(self):
-        return f'{self.question}: {self.answer}'
+        return self.answer

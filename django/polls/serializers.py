@@ -13,7 +13,7 @@ class OptionSerializer(serializers.ModelSerializer):
         fields = ['id','title','order']
 
     def create(self, validated_data):
-        answer = Answer.objects.create(
+        answer = Option.objects.create(
             title = validated_data['title'],
             order = validated_data['order'],
             question = self.context['question']
@@ -23,20 +23,20 @@ class OptionSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(max_length=255)
-    poll = serializers.SlugRelatedField(slug_field='title',read_only=True)
+    Survey = serializers.SlugRelatedField(slug_field='title',read_only=True)
     answers = OptionSerializer(many=True,read_only=True)
 
     class Meta:
         model = Question
-        fields = ['id','title','poll','answers']
+        fields = ['id','title','Survey','answers']
 
     def create(self,validated_data):
         answers = validated_data['answers']
-        poll = self.context['poll']
+        survey = self.context['survey']
 
         question = Question.objects.create(
             title=validated_data['title'],
-            poll=poll
+            survey=survey
         )
 
         a = OptionSerializer(data=answers,context={'question': question},many=True)
@@ -45,11 +45,10 @@ class QuestionSerializer(serializers.ModelSerializer):
         question.save()
 
 
-class PollSerializer(serializers.ModelSerializer):
+class SurveySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(max_length=255)
     questions = QuestionSerializer(many=True)
-    creator = serializers.IntegerField()
     slug = serializers.SlugField(max_length=70)
 
 
@@ -59,16 +58,17 @@ class PollSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         questions = self.context['questions']
-        poll = Survey.objects.create(
+        creator = self.context['creator']
+        survey = Survey.objects.create(
             title = validated_data.get('title', None),
-            creator = validated_data.get('creator', None),
+            creator = creator,
             slug = validated_data.get('slug', None)
         )
-        q = QuestionSerializer(data=questions,context={'poll': poll},many=True)
+        q = QuestionSerializer(data=questions,context={'survey': survey},many=True)
         if q.is_valid():
             q.create(validated_data=questions)
-        poll.save()
-        return poll
+        survey.save()
+        return survey
 
         
 
@@ -76,21 +76,21 @@ class PollSerializer(serializers.ModelSerializer):
 
 class AnswerSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
-    poll = serializers.IntegerField()
+    Survey = serializers.IntegerField()
     chooses = serializers.DictField()
 
     class Meta:
         model = Answer
-        fields = ['username','poll','chooses']
+        fields = ['username','survey','chooses']
 
     def create(self,validated_data):
         return Answer.objects.create(**validated_data)
 
     def save(self, *args, **kwargs):
-        poll_id = self.data['poll']
-        p = Survey.objects.get(id=poll_id)
+        Survey_id = self.data['survey']
+        p = Survey.objects.get(id=Survey_id)
         user = self.data['username']
         for key in self.data['chooses']:
             q = Question.objects.get(pk=key)
-            Answer.objects.create(poll=p,username=user,question=q,choose=self.data['chooses'][key])
+            Answer.objects.create(Survey=p,username=user,question=q,choose=self.data['chooses'][key])
 
