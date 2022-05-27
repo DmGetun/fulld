@@ -11,11 +11,11 @@ function PassBody(props) {
 
   let {authTokens, logoutUser} = useContext(AuthContext);
   let params = useParams();
-  let slug = params;
+  let slug = params.slug;
 
   return (    
     <Routes>
-      <Route path = '/' element = {<PassPollBody/>}></Route>
+      <Route path = '/' element = {<PassPollBody slug={slug} />}></Route>
       <Route path = '/info' element = {<PassPollBody/>}></Route>
       <Route path = '/slug' element = {<PassPollBody/>}></Route>
     </Routes>

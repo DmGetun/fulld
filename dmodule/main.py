@@ -1,7 +1,6 @@
+from survey import Survey
 
+survey = Survey()
 
-
-
-if __name__ == '__main__':
-    pass
-
+survey.print()
+survey.__asd

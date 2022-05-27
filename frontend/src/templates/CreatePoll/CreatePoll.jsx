@@ -20,7 +20,7 @@ function CreatePoll(props){
 
   const [questions, addQuestion] = useState([{
     'title': '',
-    'answers': answerTemplate
+    'options': answerTemplate
   }]);
 
   const[survey, AddItem] = useState({
@@ -45,14 +45,14 @@ function CreatePoll(props){
 
     // Добавить карточку с вопросом
     function addNewCard() {
-      addQuestion([...questions,{title: '', answers: answerTemplate}])
+      addQuestion([...questions,{title: '', options: answerTemplate}])
     }
 
     // Добавить вариант ответа к вопросу
     function addNewAnswer(e) {
       let question_id = +e.target.id.slice(e.target.id.indexOf('_') + 1);
       addQuestion(questions.map((question,q_id) => 
-      question_id === q_id ? {...question, answers: [...question['answers'],{title: ''}]} : question))
+      question_id === q_id ? {...question, options: [...question['options'],{title: ''}]} : question))
     }
 
     // Добавить текст ответа в поле ответа
@@ -61,7 +61,7 @@ function CreatePoll(props){
       let name = +e.target.name; // question id
       let answer_id = +e.target.id;
       addQuestion(questions.map((question, q_id) => 
-      name === q_id ? {...question, answers: question.answers.map((answer,id) => 
+      name === q_id ? {...question, options: question.options.map((answer,id) => 
         answer_id === id ? {...answer, title: text} : answer) } : question ))
     }
 
@@ -69,7 +69,7 @@ function CreatePoll(props){
   <CreateQuestionCard>
     <QTitleField key={question_id} id = {'title_' + question_id} changeValue={setQuestionTitle}/>
     <Answers>
-      { card['answers'].map((answer,answer_id) => 
+      { card['options'].map((answer,answer_id) => 
         <AnswerField name={question_id} question_id={question_id} id={answer_id} changeValue={setAnswer}></AnswerField>
       ) }
     </Answers>
@@ -99,7 +99,9 @@ function CreatePoll(props){
     e.preventDefault(); 
     
     survey['questions'] = questions.map((question,q_id) => ({...question, order: q_id + 1, 
-    answers: [question['answers'].map((answer,id) => ({...answer,order: id + 1}))]}))
+    options: question['options'].map((answer,id) => ({...answer,order: id + 1}))}))
+
+    console.log(survey)
 
     let response = await fetch(apiURL, {
       method: "POST",

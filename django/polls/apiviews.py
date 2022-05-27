@@ -1,3 +1,4 @@
+from pip import main
 from polls import serializers
 from polls.utils import get_unique_slug
 from rest_framework import status
@@ -24,6 +25,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 import jwt
 from .models import User
+from .dmodule.module import Module
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -58,11 +60,11 @@ def login(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated,])
 def get_opros(request,slug = None):
-    user = request.user
     if slug is None:
         p = Survey.objects.all()[0]
     else:
         p = get_object_or_404(Survey,slug=slug)
+        print(SurveySerializer(p).data)
         return Response(SurveySerializer(p).data)
     return Response({'error': 'Указанный опрос не найден'},status=HTTP_404_NOT_FOUND)
 
@@ -71,10 +73,17 @@ def get_opros(request,slug = None):
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
     user = User.objects.get(id=request.user.id)
-    print(user)
+    module = Module()
+    keys = module.generate_key()
+
     context = request.data['questions']
     request.data['slug'] = get_unique_slug(Survey)
-    serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user})
+    request.data['keys'] = keys
+
+    print(request.data)
+    serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user, 'keys':keys})
+    print(serializer.is_valid())
+    print(serializer.errors)
     if serializer.is_valid():
         survey = serializer.create(validated_data=request.data)
         return Response(SurveySerializer(survey).data, status=status.HTTP_200_OK)

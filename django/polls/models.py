@@ -10,6 +10,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 #     status = models.CharField(max_length=1,choices=Status.choices, default=Status.EXPERT)
 
 
+
 class Survey(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=70,blank=True)
@@ -17,6 +18,14 @@ class Survey(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Key(models.Model):
+    survey = models.OneToOneField(Survey,on_delete=models.CASCADE,related_name='keys',null=True)
+    pub_y = models.IntegerField(default=1)
+    pub_n = models.IntegerField(default=1)
+    sec_a = models.IntegerField(default=1)
+    sec_x = models.IntegerField(default=1)
 
 
 class Type(models.CharField):

@@ -7,6 +7,8 @@ import PassAnswerField from './PassAnswerField';
 import { Button } from 'reactstrap';
 import axios from 'axios';
 import { API_URL_TAKE_POLL } from '../static/constants';
+import '../../CryptoModule/crypto';
+import Crypto from '../../CryptoModule/crypto';
 
 function PassPollBody(props) {
 
@@ -46,7 +48,7 @@ function PassPollBody(props) {
     function SetChoose(e) {
       let item = e.target;
       let name = item.name.slice(item.name.indexOf('_') + 1);
-      let value = item.id.slice(-1);
+      let value = +item.id.slice(-1);
       SetChooseValue({ ...chooseValues,[name]: value });
       console.log(chooseValues);
       console.log(items)
@@ -65,21 +67,23 @@ function PassPollBody(props) {
             <PassQuestionCard key={question_id}>
               <PassTitleField Text={question.title} id={question.id} />
               <Answers>
-                { questions[question_id]['answers'].map((answer,answer_id) => 
-                  <PassAnswerField Name={'question_' + question.id} id={answer_id + 1} 
+                { questions[question_id]['options'].map((answer,answer_id) => 
+                  <PassAnswerField Name={'question_' + question.id} id={answer_id} 
                   Text={answer.title} setChoose={SetChoose} key={answer_id}></PassAnswerField>
                 )}
               </Answers>
             </PassQuestionCard>
          )}
           <Button type='submit'>Сохранить</Button>
-        </form> )
+        </form>
       </div>
 )
 
   function SendPoll(e) {
     e.preventDefault();
     const apiURL = 'http://localhost:8000/poll/receive'
+
+    let encryptChooses = EncryptChooses();
 
     let username = 'dmitry';
     let chooses = {
@@ -94,6 +98,22 @@ function PassPollBody(props) {
       data: chooses
     })
   }
+
+  function EncryptChooses(){
+    let crypto = new Crypto();
+    let encrypt = crypto.Encrypt;
+    let pub_n = items.keys.pub_n;
+    let pub_y = items.keys.pub_y;
+    let sec_a = items.keys.sec_a;
+    let sec_x = items.keys.sec_x;
+    console.log(crypto.Decrypt(939,sec_a,sec_x,pub_n));
+    let arr = {};
+    for (let key in chooseValues.keys()) {
+      arr[key] = encrypt(chooseValues[key],pub_n,pub_y);
+    }
+    return arr;
+  }
+
 }
 
 export default PassPollBody;
