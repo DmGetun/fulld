@@ -88,10 +88,15 @@ class Survey:
         answer = Answer(order,answer)
         self._questions[order].add_answer(answer)
 
+    def get_questions(self):
+        questions = [question.get() for question in self._questions]
+        return questions
 
     def get_answers(self):
         answers = [question.get_answers() for question in self._questions]
         return answers
+
+    
 
         
 

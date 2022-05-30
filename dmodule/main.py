@@ -1,8 +1,10 @@
+import math
 import pprint
 from survey.DATA import data
 from survey.survey import Survey
 from survey.question import Question
 from survey.option import Option
+from survey.survey_encryptor import Survey_encryptor
 
 pp = pprint.PrettyPrinter(indent=1)
 pp.pprint(data)
@@ -28,3 +30,15 @@ pp.pprint(survey.get())
 
 answers = survey.get_answers()
 print(answers)
+
+encryptor = Survey_encryptor(survey)
+message = 8
+message2 = 10
+keys = encryptor.generate_key()
+encr = encryptor.message_encrypt(message,(keys['public_key'],keys['public_exponent']))
+encr2 = encryptor.message_encrypt(message2,(keys['public_key'],keys['public_exponent']))
+print(encr)
+encr = encr*encr2
+print(encr)
+decr = encryptor.dectypt_message(encr,(keys['private_key'],keys['private_exponent']),keys['public_exponent'])
+print(decr)
