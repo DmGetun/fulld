@@ -14,8 +14,6 @@ class Crypto {
         let n_2 = n * n;
         let c = pow(y,number,n_2) * pow(u,n,n_2) % n_2;
         return c;
-        var encrypt = new JSEncrypt();
-        window.crypto.getRandomValues();
     }
 
     Decrypt(message,a,x,n){
