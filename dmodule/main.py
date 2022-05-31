@@ -1,5 +1,7 @@
+from datetime import datetime
 import math
 import pprint
+from survey.utils import rabinMiller
 from survey.DATA import data
 from survey.survey import Survey
 from survey.question import Question
@@ -32,13 +34,18 @@ answers = survey.get_answers()
 print(answers)
 
 encryptor = Survey_encryptor(survey)
-message = 8
-message2 = 10
+message = 2
+message2 = 151
+start = datetime.now()
 keys = encryptor.generate_key()
-encr = encryptor.message_encrypt(message,(keys['public_key'],keys['public_exponent']))
-encr2 = encryptor.message_encrypt(message2,(keys['public_key'],keys['public_exponent']))
-print(encr)
-encr = encr*encr2
-print(encr)
-decr = encryptor.dectypt_message(encr,(keys['private_key'],keys['private_exponent']),keys['public_exponent'])
-print(decr)
+time = datetime.now() - start
+print(f'{time=}')
+
+encr2 = encryptor.message_encrypt(message,(keys['public_key'],keys['public_exponent']))
+decr = encryptor.dectypt_message(encr2,(keys['private_key'],keys['private_exponent']),keys['public_exponent'])
+print(f'{decr=}')
+
+miller = rabinMiller()
+
+
+

@@ -1,6 +1,6 @@
 from survey.survey import Survey
 import math
-
+from survey.utils import imod, modinv, rabinMiller, speed_pow
 
 class Survey_encryptor:
 
@@ -8,17 +8,19 @@ class Survey_encryptor:
         self.survey = survey
 
     def generate_key(self):
-        p:int = 7 # случайное простое число
-        q:int = 5 # случайное простое число
+        miller = rabinMiller()
+        p:int = miller.generateLargePrime(15) # случайное простое число
+        q:int = miller.generateLargePrime(15) # случайное простое число
+        print(f'{math.gcd(p * q,(p - 1) * (q - 1))}')
         if math.gcd(p * q,(p - 1) * (q - 1)) != 1:
             return 'error'
 
         n = p * q
-        n_2 = n ** 2
+        n_2 = n * n
         alf = math.lcm(p-1, q-1)
-        y = 3 # случайное число из диапазона от 0 до n^2 
-
-        x = (((y ** alf) % n_2 - 1) // n) % n
+        y = 3 # случайное число из диапазона от 0 до n^2
+        l = self.L(pow(y,alf,n_2),n)
+        x = modinv(l,n) % n
 
         return dict(
             public_key=y,
@@ -36,15 +38,13 @@ class Survey_encryptor:
         questions = self.survey.get_questions()
 
 
-
-    
     def message_encrypt(self,message,key:tuple):
         pubkey= key[0]
         exponent = key[1]
-        number = math.pow(10,message)
+        number =  message 
         random = 9 # случайное число из диапазона от 1 до 9
         n_2 = exponent ** 2
-        c = self.__pow(pubkey,message,n_2) * self.__pow(random,exponent,n_2) % n_2
+        c = pow(pubkey,number,n_2) * pow(random,exponent,n_2) % n_2
         return c
 
 
@@ -56,17 +56,10 @@ class Survey_encryptor:
         privkey = key[0]
         priv_exponent = key[1]
         n_2 = pub_key ** 2
-        c = ((self.__pow(message,privkey,n_2) - 1) // pub_key) * priv_exponent % pub_key
+        c = (self.L(pow(message,privkey,n_2),pub_key) * priv_exponent) % pub_key
         return c
 
-
-
-    def __pow(self,number,power,module):
-        result = 1
-        while power > 0:
-            result = (result * number) % module
-            power -= 1
-    
-        return result
+    def L(self,u,n):
+        return (u - 1) // n
 
 
