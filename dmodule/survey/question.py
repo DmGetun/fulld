@@ -1,11 +1,16 @@
-from survey.option import Option
-from survey.answer import Answer
+from option import Option
+from answer import Answer
+
+class Type:
+    quantitative = 'quantitative' # количественный
+    qualitative = 'qualitative' # качественный
 
 class Question:
 
-    def __init__(self,title,order=None,options=None):
+    def __init__(self,title=None,order=None,options=None,type=None):
         self.title = title
         self.order = order
+        self.type = type
         self._options: list = options
         self._answers: list = None
 
@@ -14,6 +19,19 @@ class Question:
         if self.order is None: return False
 
         return True
+
+    @property
+    def get_type(self):
+        return self.type
+
+    def load(**question):
+        title = question.get('title',None)
+        order = question.get('order',None)
+        options = question.get('options',None)
+        if not options is None:
+            options = [Option.load(**option) for option in options]
+
+        return Question(title,order,options)
 
     def add_option(self,text,order=None):
         if self._options is None:
@@ -63,7 +81,7 @@ class Question:
         if self._options is None: 
             return dict(title=self.title,order=self.order)
 
-        options = [option.get() for option in self._options]    
+        options = [option.get() for option in self._options]  
 
         return dict(
             title=self.title,
@@ -78,7 +96,7 @@ class Question:
         self._answers.append(answer)
 
     def get_answers(self):
-        answers = [answer.get() for answer in self._answers] if self._answers is not None else None
+        answers = [answer for answer in self._answers] if self._answers is not None else None
 
         return dict(
             order=self.order,

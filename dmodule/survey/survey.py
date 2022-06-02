@@ -1,7 +1,8 @@
 from functools import singledispatch
 
-from survey.question import Question
-from survey.answer import Answer
+from question import Question
+from answer import Answer
+from result import Result
 
 
 class Survey:
@@ -9,16 +10,26 @@ class Survey:
     def __init__(self,title,questions=None):
         self.title = title
         self._questions: list = questions
+        self._results = None
 
-    def load(self,**survey):
+    def load(**survey):
         title = survey.get('title',None)
         questions = survey.get('questions',None)
-        if title is None or questions in None:
+        if title is None or questions is None:
             return 'error'
 
-        self.title = title
-        self._questions = questions
+        questions = [Question.load(**question) for question in questions]
+        return Survey(title,questions=questions)
 
+
+    def add_result(self,question,result):
+        if self._results is None:
+            self._results = []
+
+        self._results.append(Result(question,result))
+
+    def get_result(self):
+        return self._results
 
     def load_question(self,**question):
         title = question.get('title',None)

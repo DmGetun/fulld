@@ -13,6 +13,13 @@ class Answer:
         return dict(
             answer = self.answer
         )
+    
+    @property
+    def value(self):
+        return self.answer
+
+    def set_value(self,value):
+        self.answer = value
 
     
 

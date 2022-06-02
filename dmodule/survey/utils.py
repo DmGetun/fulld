@@ -50,17 +50,6 @@ class rabinMiller:
             if self.isPrime(num):
                 return num
 
-def speed_pow(n,p,m):
-    
-    r = 1
-    e = p
-    while (e):
-        if (e & 1) == 1:
-            r = (r * n) % m
-        e //= 2
-        n = (n*n) % m
-    return r
-
 def egcd(a, b):
     if a == 0:
         return (b, 0, 1)
@@ -75,13 +64,5 @@ def modinv(a, m):
     else:
         return x % m
 
-def imod(a,n):
-  i=1
-  while True:
-    c = n * i + 1
-    if(c%a==0):
-      c = c//a
-      break
-    i = i+1
-
-  return c
+def L(u,n):
+    return (u - 1) // n
