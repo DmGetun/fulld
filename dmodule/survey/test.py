@@ -10,20 +10,17 @@ pp.pprint(data)
 
 survey = Survey.load(**data)
 encryptor = Survey_encryptor(survey)
-survey.add_answer(survey.get_question_on_order(0),2)
-survey.add_answer(survey.get_question_on_order(0),1)
-keys = Survey_encryptor.generate_key()
-encrypt_survey = encryptor.encrypt((keys['public_key'],keys['public_exponent']))
+for _ in range(700):
+    survey.add_answer(survey.get_question_on_order(0),2)
 
+for _ in range(200):
+    survey.add_answer(survey.get_question_on_order(0),1)
 
-value1 = encrypt_survey.get_answers()[0]['answers'][0].value
-value2 = encrypt_survey.get_answers()[0]['answers'][1].value
-print(value1 * value2)
-decr = encryptor.message_dectypt(value1*value2,(keys['private_key'],keys['private_exponent']),keys['public_exponent'])
-print(decr)
-result = Survey_counter(encrypt_survey)
-result.result()
-print(result)
+keys = survey.generate_key()
+private_keys = (keys['private_key'],keys['private_exponent'])
+public_keys = (keys['public_key'],keys['public_exponent'])
+survey.encrypt(public_keys)
+survey.result()
+survey.decrypt(private_keys,keys['public_key'])
 
-decrypt_survey = encryptor.decrypt((keys['private_key'],keys['private_exponent']),keys['public_exponent'])
-print()
+print(survey.get())

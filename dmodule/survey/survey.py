@@ -1,16 +1,24 @@
-from functools import singledispatch
-
 from question import Question
 from answer import Answer
 from result import Result
-
+from survey_encryptor import Survey_encryptor
+from survey_counter import Survey_counter
 
 class Survey:
 
-    def __init__(self,title,questions=None):
+    def __init__(self,title,questions=None,experts_number=999):
         self.title = title
         self._questions: list = questions
         self._results = None
+        self.experts_number = experts_number
+
+    @property
+    def answer_field(self):
+        return self._answer_field
+
+    @answer_field.setter
+    def answer_field(self,field_name):
+        self._answer_field = field_name
 
     def load(**survey):
         title = survey.get('title',None)
@@ -94,10 +102,21 @@ class Survey:
     def __sort(self):
         self._questions.sort(key=lambda x: x.get()['order'])
 
-    def add_answer(self,question,answer,type=None):
+    def add_answer(self,question: Question,answer,type=None):
+        question_count = len(question.get()['options'])
+        encoded_answer = self.answer_encode(question_count,answer)
         order = question.get()['order']
-        answer = Answer(order,answer)
+        answer = Answer(order,encoded_answer)
         self._questions[order].add_answer(answer)
+
+    def answer_encode(self,count,answer):
+        n = self.experts_number
+        constant = 0
+        while n != 0:
+            n //= 10
+            constant += 1
+        return (10 ** constant) ** (count - answer)
+
 
     def get_questions(self):
         questions = [question.get() for question in self._questions]
@@ -107,9 +126,17 @@ class Survey:
         answers = [question.get_answers() for question in self._questions]
         return answers
 
-    
+    def generate_key(self):
+        return Survey_encryptor.generate_key()
 
-        
+    def encrypt(self,keys):
+        Survey_encryptor.encrypt(self,keys)
+
+    def result(self):
+        Survey_counter.result(self)
+
+    def decrypt(self,keys,pub_key):
+        Survey_encryptor.decrypt(self,keys,pub_key) 
 
 
 

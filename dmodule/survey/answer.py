@@ -1,7 +1,5 @@
 
 
-from multiprocessing.connection import answer_challenge
-
 class Answer:
 
     def __init__(self,question,answer,type=None):
@@ -16,10 +14,11 @@ class Answer:
     
     @property
     def value(self):
-        return self.answer
+        return self._answer
 
-    def set_value(self,value):
-        self.answer = value
+    @value.setter
+    def value(self,value):
+        self._answer = value
 
     
 

@@ -29,22 +29,18 @@ class Survey_encryptor:
             private_exponent=x
         )
 
-
-
-    def encrypt(self,key:tuple):
-        enc_survey = self.survey
+    def encrypt(survey:Survey,key:tuple):
+        enc_survey = survey
         questions = enc_survey.get_answers()
         for question in questions:
             if question['answers'] is None:
                 continue
             for answer in question['answers']:
-                enc = self.message_encrypt(answer.value,key)
+                enc = Survey_encryptor.message_encrypt(answer.value,key)
                 answer.set_value(enc)
-        
-        return enc_survey
             
-
-    def message_encrypt(self,message,key:tuple):
+    @staticmethod
+    def message_encrypt(message,key:tuple):
         pubkey= key[0]
         exponent = key[1]
         number = message 
@@ -53,11 +49,11 @@ class Survey_encryptor:
         c = pow(pubkey,number,n_2) * pow(random,exponent,n_2) % n_2
         return c
 
-    def decrypt(self,key:tuple,pub_key):
-        survey = self.survey
+
+    def decrypt(survey,key:tuple,pub_key):
         results = survey.get_result()
         for result in results:
-            value = self.message_dectypt(result.get_value(),key,pub_key)
+            value = Survey_encryptor.message_dectypt(result.get_value(),key,pub_key)
             result.set_value(value)
 
         return survey
