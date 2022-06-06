@@ -1,5 +1,8 @@
-from survey import Survey
+from functools import partial
 import math
+from survey import Survey
+from multiprocessing.pool import Pool
+from functools import reduce
 
 class Survey_counter():
 
@@ -9,17 +12,24 @@ class Survey_counter():
 
     def result(survey):
         survey:Survey = survey
-        questions = survey.get_answers()
-        for question in questions:
-            if question.get('answers',None) is None:
-                continue
-            result = Survey_counter.summator(question['answers'])
+        all_answers = survey.get_answers()
+        with Pool() as p:
+            func = partial(Survey_counter._result,survey.keys['public_exponent'])
+            results = p.map_async(func,all_answers)
+            for question,result in zip(all_answers,results.get()):
+                survey.add_result(question,result)
+            
+        return survey._results
+
+    def _result(n,answers):
+            result = Survey_counter.summator(answers,n)
             result = Survey_counter.result_parser(result)
-            survey.add_result(question,result)
+            return result
 
     def result_parser(result):
-        pass # добавить расшифровку с группировкой по числу ответов
+        return result
 
-    def summator(self,answers):
-        res = math.prod([answer.value for answer in answers])
+    def summator(answers,n):
+        res = reduce(lambda a,b: (a * b) % (n * n),[answer.value for answer in answers]) % (n * n)
+        #res = math.prod([answer.value for answer in answers]) % (n * n)
         return res

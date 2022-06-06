@@ -14,11 +14,11 @@ class Answer:
     
     @property
     def value(self):
-        return self._answer
+        return self.answer
 
     @value.setter
     def value(self,value):
-        self._answer = value
+        self.answer = value
 
     
 
