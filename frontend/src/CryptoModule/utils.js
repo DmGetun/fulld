@@ -1,6 +1,6 @@
 function gcd(a,b){
     /* asd */
-    if (arguments[1] == 0) return arguments[0]
+    if (arguments[1] === 0) return arguments[0]
 
     return gcd(arguments[1], arguments[0] % arguments[1])
 }
@@ -18,3 +18,4 @@ function pow(number,power,module){
 }
 
 export {gcd, lcm, pow};
+

@@ -7,8 +7,7 @@ import PassAnswerField from './PassAnswerField';
 import { Button } from 'reactstrap';
 import axios from 'axios';
 import { API_URL_TAKE_POLL } from '../static/constants';
-import '../../CryptoModule/crypto';
-import Crypto from '../../CryptoModule/crypto';
+import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
 
 function PassPollBody(props) {
 
@@ -83,35 +82,25 @@ function PassPollBody(props) {
     e.preventDefault();
     const apiURL = 'http://localhost:8000/poll/receive'
 
-    let encryptChooses = EncryptChooses();
-
     let username = 'dmitry';
     let chooses = {
       'username': username,
       'poll': items.id,
       'chooses': chooseValues
     }
+    let experts = 999
+    let encryptor = new cryptoSurvey(experts);
+    encryptor.SetKey(items.keys.pub_n,items.keys.pub_y);
+    encryptor.GenerateKey();
+    let p2 = JSON.parse(JSON.stringify(chooses));
+    let result = encryptor.EncryptSurvey(p2)
+    console.log(result)
     
     axios({
       method: 'post',
       url: apiURL,
-      data: chooses
+      data: result
     })
-  }
-
-  function EncryptChooses(){
-    let crypto = new Crypto();
-    let encrypt = crypto.Encrypt;
-    let pub_n = items.keys.pub_n;
-    let pub_y = items.keys.pub_y;
-    let sec_a = items.keys.sec_a;
-    let sec_x = items.keys.sec_x;
-    console.log(crypto.Decrypt(939,sec_a,sec_x,pub_n));
-    let arr = {};
-    for (let key in chooseValues.keys()) {
-      arr[key] = encrypt(chooseValues[key],pub_n,pub_y);
-    }
-    return arr;
   }
 
 }

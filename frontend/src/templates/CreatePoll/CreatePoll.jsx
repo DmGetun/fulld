@@ -10,6 +10,7 @@ import PollTitleField from './PollTitleField';
 import AuthContext from '../../context/AuthContext'
 import { API_URL_CREATE_POLL } from '../static/constants';
 import { useNavigate } from 'react-router';
+import cryptoSurvey from '../../CryptoModule/cryptoSurvey';
 
 function CreatePoll(props){
 
@@ -101,7 +102,7 @@ function CreatePoll(props){
     survey['questions'] = questions.map((question,q_id) => ({...question, order: q_id + 1, 
     options: question['options'].map((answer,id) => ({...answer,order: id + 1}))}))
 
-    console.log(survey)
+    survey['experts_number'] = 999
 
     let response = await fetch(apiURL, {
       method: "POST",

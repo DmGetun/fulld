@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.26.1",
     "formik": "^2.2.9",
+    "jsbn": "^1.1.0",
     "jwt-decode": "^3.1.2",
     "node-sass": "^7.0.1",
     "package.json": "^2.0.1",
