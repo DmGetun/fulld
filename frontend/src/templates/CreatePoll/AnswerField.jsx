@@ -12,9 +12,7 @@ function AnswerField(props) {
           <input onChange={(e) => changeValue(e)} id={id} type={type} required placeholder=' '
           question_id ={props.question_id} name={props.name}></input>
           <label>Вариант ответа</label>
-        </div>
-        <div class='delete-answer-block'>
-          <img src={cross} class='delete-answer'></img>
+          <div class='krest'></div>
         </div>
       </div>
     );

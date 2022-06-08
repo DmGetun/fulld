@@ -50,10 +50,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 class KeySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     survey = serializers.SlugRelatedField(slug_field='title',read_only=True)
-    pub_y = serializers.IntegerField(default=1)
-    pub_n = serializers.IntegerField(default=1)
-    sec_a = serializers.IntegerField(default=1)
-    sec_x = serializers.IntegerField(default=1)
+    public_key = serializers.CharField(max_length=4096)
+    public_exponent = serializers.CharField(max_length=4096)
+    private_key = serializers.CharField(max_length=4096)
+    private_exponent = serializers.CharField(max_length=4096)
 
 
     class Meta:
@@ -67,10 +67,10 @@ class KeySerializer(serializers.ModelSerializer):
 
         keys = Key.objects.create(
             survey=survey,
-            pub_y = validated_data['pub_y'],
-            pub_n = validated_data['pub_n'],
-            sec_a = validated_data['sec_a'],
-            sec_x = validated_data['sec_x'],
+            public_key = validated_data['public_key'],
+            public_exponent = validated_data['public_exponent'],
+            private_key = validated_data['private_key'],
+            private_exponent = validated_data['private_exponent'],
         )
         print(keys)
         keys.save()
@@ -94,12 +94,15 @@ class SurveySerializer(serializers.ModelSerializer):
         questions = self.context['questions']
         creator = self.context['creator']
         keys = self.context['keys']
+        print(f'keys:{keys}')
         survey = Survey.objects.create(
             title = validated_data.get('title', None),
             creator = creator,
             slug = validated_data.get('slug', None)
         )
-        k = KeySerializer(data={'keys':keys},context={'survey': survey})
+        k = KeySerializer(data=keys,context={'survey': survey})
+        k.is_valid()
+        print(k.errors)
         if k.is_valid():
             k.create(validated_data=keys)
         q = QuestionSerializer(data=questions,context={'survey': survey},many=True)

@@ -72,14 +72,17 @@ def get_opros(request,slug = None):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
+    print(request.data)
     user = User.objects.get(id=request.user.id)
-    module = Module()
-    keys = module.generate_key()
 
     context = request.data['questions']
     request.data['slug'] = get_unique_slug(Survey)
-    request.data['keys'] = keys
-
+    keys = request.data['keys']
+    #dmodule = SurveyEncryptor(encrypted=True)
+    #enc_survey = dmodule.load_json(request)
+    #enc_survey.encrypt()
+    #result = enc_survey.results()
+    #enc_survey.decrypt() 
     print(request.data)
     serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user, 'keys':keys})
     print(serializer.is_valid())

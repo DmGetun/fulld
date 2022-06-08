@@ -27,16 +27,30 @@
     margin-right: auto;
 }
 
-.delete-answer-block {
-    img {
-        display: block;
-        float: right;
-        position: relative;
-        top:-50px;
-        right:30px;
-        width:15px;
-        height:15px;
+.krest{
+    cursor: pointer; 
+    position: absolute; 
+    top: 20px; left: 10px;
+    margin:0 0 0 100%;
+
+    &:hover{
+        background: red;
     }
+    &:before,&:after{
+        content: ""; position: absolute; width: 24px; height: 4px; background: gray; display:block;
+    }
+    &:before{
+        transform: rotate(45deg);
+    }
+    
+    &:after{
+        transform: rotate(-45deg);
+    }
+}
+
+.delete-answer-block {
+    width:5%;
+    float: right;
 }
 
 .add-question-button{

@@ -22,10 +22,10 @@ class Survey(models.Model):
 
 class Key(models.Model):
     survey = models.OneToOneField(Survey,on_delete=models.CASCADE,related_name='keys',null=True)
-    pub_y = models.IntegerField(default=1)
-    pub_n = models.IntegerField(default=1)
-    sec_a = models.IntegerField(default=1)
-    sec_x = models.IntegerField(default=1)
+    public_key = models.CharField(max_length=4096)
+    public_exponent = models.CharField(max_length=4096)
+    private_key = models.CharField(max_length=4096)
+    private_exponent = models.CharField(max_length=4096)
 
 
 class Type(models.CharField):

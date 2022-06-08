@@ -10,18 +10,23 @@ import PollTitleField from './PollTitleField';
 import AuthContext from '../../context/AuthContext'
 import { API_URL_CREATE_POLL } from '../static/constants';
 import { useNavigate } from 'react-router';
-import cryptoSurvey from '../../CryptoModule/cryptoSurvey';
+import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
+import AddQuestionButton from './AddQuestionButton';
 
 function CreatePoll(props){
 
   const apiURL = API_URL_CREATE_POLL;
   let {user, authTokens} = useContext(AuthContext);
 
+  let qualitative = 'Qualitative'
+  let quantitative = 'Quantitative'
+
   const answerTemplate = [{title: ''},{title: ''}]
 
   const [questions, addQuestion] = useState([{
     'title': '',
-    'options': answerTemplate
+    'options': answerTemplate,
+    'type': qualitative
   }]);
 
   const[survey, AddItem] = useState({
@@ -31,10 +36,10 @@ function CreatePoll(props){
   });
 
     // Установить название Опроса
-  function setPollTitle(e) {
-    let title = e.target.value;
-    AddItem({...survey, title: title});
-  }
+    function setPollTitle(e) {
+      let title = e.target.value;
+      AddItem({...survey, title: title});
+    }
 
     // Установить название вопроса
     function setQuestionTitle(e) {
@@ -45,15 +50,20 @@ function CreatePoll(props){
     }
 
     // Добавить карточку с вопросом
-    function addNewCard() {
-      addQuestion([...questions,{title: '', options: answerTemplate}])
+    function addNewQualitativeCard(e) {
+      addQuestion([...questions,{title: '', options: answerTemplate, type:qualitative}])
+    }
+
+    function addNewQuantitativeCard(e) {
+      addQuestion([...questions,{title:'',type: quantitative, options:[{title:''}] }])
     }
 
     // Добавить вариант ответа к вопросу
     function addNewAnswer(e) {
       let question_id = +e.target.id.slice(e.target.id.indexOf('_') + 1);
       addQuestion(questions.map((question,q_id) => 
-      question_id === q_id ? {...question, options: [...question['options'],{title: ''}]} : question))
+      question_id === q_id && question.type !== quantitative ? 
+      {...question, options: [...question['options'],{title: ''}]} : question))
     }
 
     // Добавить текст ответа в поле ответа
@@ -74,10 +84,12 @@ function CreatePoll(props){
         <AnswerField name={question_id} question_id={question_id} id={answer_id} changeValue={setAnswer}></AnswerField>
       ) }
     </Answers>
+    {card.type === qualitative ?
     <AddAnswerButton id={question_id} onClick={(e) => addNewAnswer(e)}></AddAnswerButton>
+    : ''
+    }
   </CreateQuestionCard>
  );
-
 
   return (
     <div class="container">
@@ -85,9 +97,8 @@ function CreatePoll(props){
           <form onSubmit={SendPoll}>  
             <PollTitleField changeValue={setPollTitle}/>
             {cards}
-            <div class='add-question-button'>
-              <Button onClick={(e) => addNewCard(e)}>Добавить вопрос</Button>
-            </div>
+            <AddQuestionButton onClick={addNewQuantitativeCard} type={qualitative}></AddQuestionButton>
+            <AddQuestionButton onClick={addNewQualitativeCard} type={quantitative}></AddQuestionButton>
             <div class='add-question-button'>
               <Button type='submit'>Сохранить</Button>
             </div>
@@ -103,7 +114,17 @@ function CreatePoll(props){
     options: question['options'].map((answer,id) => ({...answer,order: id + 1}))}))
 
     survey['experts_number'] = 999
-
+    let encryptor = new cryptoSurvey();
+    let keys = encryptor.GenerateKey();
+    survey['keys'] = {
+      'public_key': keys.public_key.toString(16), 
+      'public_exponent': keys.public_exponent.toString(16),
+      'private_key': keys.private_key.toString(16),
+      'private_exponent': keys.private_exponent.toString(16)};
+    console.log(survey)
+    localStorage.setItem('sec_keys',JSON.stringify({'private_key': keys.private_key.toString(16),
+    'private_exponent': keys.private_exponent.toString(16)}))
+    
     let response = await fetch(apiURL, {
       method: "POST",
       headers: {

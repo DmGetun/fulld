@@ -10,19 +10,23 @@ class Survey_encryptor:
     def __init__(self,survey:Survey):
         self.survey = survey
 
-    def generate_key():
+    def generate_key(keysize:int =1024):
+        '''
+        generate a 
+        '''
         miller = rabinMiller()
-        p:int = miller.generateLargePrime(100) # случайное простое число
-        q:int = miller.generateLargePrime(100) # случайное простое число
+        p:int = miller.generateLargePrime(keysize/2) # случайное простое число
+        q:int = miller.generateLargePrime(keysize/2) # случайное простое число
+        print(len(bin(p * q).replace('0b','')))
         if math.gcd(p * q,(p - 1) * (q - 1)) != 1:
             return 'error'
 
-        n = p * q
-        n_2 = n * n
-        alf = math.lcm(p-1, q-1)
-        y = miller.generateLargePrime(len(bin(n)) - 5)
-        l = L(pow(y,alf,n_2),n)
-        x = modinv(l,n) % n
+        n: int = p * q
+        n_2: int = n * n
+        alf: int = math.lcm(p-1, q-1)
+        y: int = miller.generateLargePrime(len(bin(n)) - 5)
+        l: int = L(pow(y,alf,n_2),n)
+        x: int = modinv(l,n) % n
 
         return dict(
             public_key=y,
@@ -34,13 +38,11 @@ class Survey_encryptor:
     def encrypt(survey:Survey,key:tuple):
         if survey._encrypted == True:
             return 'Survey is already encrypted'
-        enc_survey = survey
-        all_answers = enc_survey.get_answers()
+        all_answers: list = survey.get_answers()
         for answers in all_answers:
             if answers is None:
                 continue
             func = partial(Survey_encryptor.message_encrypt,key)
-            answers = answers
             with Pool() as p:
                 results = p.map_async(func,[answer.value for answer in answers])
                 results = results.get()

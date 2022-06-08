@@ -1,5 +1,5 @@
 import './utils';
-import { gcd, lcm, pow } from './utils';
+import { gcd, lcm, pow, L, modinv} from './utils';
 
 
 export class cryptoSurvey {
@@ -8,26 +8,32 @@ export class cryptoSurvey {
         this.expertsNumber = expertsNumber;
     }
 
-    SetKey(n,y){
-        this.n = n;
-        this.y = y;
+    SetKey(keys){
+        this.keys = keys
     }
 
-    GenerateKey(){
-        let bigInteger = require('jsbn').BigInteger;
-        let p = this.randInt(100)
+    GenerateKey(keysize=1024){
+        var bigInt = require("big-integer");
+        let p = this.randInt(keysize/2);
+        let q = this.randInt(keysize/2);
+        let n = p.multiply(q)
+        let n_2 = n.pow(2);
+        let alf = bigInt.lcm(p.minus(1),q.minus(1));
+        let y = this.randInt(n.bitLength() - 2)
+        let u = y.modPow(alf,n_2)
+        let l = L(u,n)
+        let s = l.modInv(n);
+        let x = s.divmod(n).remainder; 
+        return {'public_key':y, 'public_exponent':n, 'private_key':alf,'private_exponent':x}
     }
 
     randInt(keysize){
-        let bigInteger = require('jsbn').BigInteger;
+        var bigInt = require("big-integer");
         let isPrime = false;
-        let rand = new bigInteger('0');
-        while(isPrime){
-            let min = new bigInteger('2').pow(keysize-1);
-            let max = new bigInteger('2').pow(keysize);
-            let sub = max.subtract(min);
-            let rand_s = new bigInteger(Math.random().toString());
-            rand = sub.multiply(rand_s);
+        let consta = bigInt(2);
+        let rand = bigInt(0);
+        while(!isPrime){
+            rand = bigInt.randBetween(consta.pow(keysize-1),consta.pow(keysize));
             isPrime = rand.isProbablePrime();
         }
         return rand;
@@ -43,17 +49,22 @@ export class cryptoSurvey {
         return survey;
     }
 
-    Encrypt(message, pub_key, pub_exp){
-        let bigInteger = require('jsbn').BigInteger;
-        let random = new bigInteger('9'); // add rabinMiller
-        let n = new bigInteger(pub_key.toString());
-        let n_2 = n.pow(2);
-        let y = new bigInteger(pub_exp.toString());
-        return (n.modPowInt(message,n_2) * random.modPowInt(y,n_2)) % n_2; 
+    Encrypt(message){
+        var bigInt = require("big-integer");
+        let pub_key = bigInt(this.keys.pub_key.toString());
+        let pub_exp = bigInt(this.keys.pub_exp.toString());
+        let random = bigInt('9'); // add rabinMiller
+        let n_2 = pub_exp.pow(2);
+        return pub_key.modPow(message,n_2).multiply(random.modPow(pub_exp,n_2)).divmod(n_2).remainder; 
     }
 
-    Decrypt(message,a,x,n){
-        let bigInteger = require('jsbn').BigInteger;
+    Decrypt(message){
+        var bigInt = require("big-integer");
+        let a = bigInt(this.keys.priv_key);
+        let x = bigInt(this.keys.priv_exp);
+        let n = bigInt(this.keys.pub_exp);
+        let n_2 = n.pow(2);
+        return L(message.modPow(a,n_2),n).multiply(x).divmod(n).remainder;
     }
 
     EncodeAnswer(answer){

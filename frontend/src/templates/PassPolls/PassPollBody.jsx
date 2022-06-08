@@ -90,10 +90,12 @@ function PassPollBody(props) {
     }
     let experts = 999
     let encryptor = new cryptoSurvey(experts);
-    encryptor.SetKey(items.keys.pub_n,items.keys.pub_y);
-    encryptor.GenerateKey();
+    let keys = encryptor.GenerateKey();
+    encryptor.SetKey(keys);
     let p2 = JSON.parse(JSON.stringify(chooses));
     let result = encryptor.EncryptSurvey(p2)
+    let encrypt = encryptor.Encrypt(8,items.keys.pub_y,items.keys.pub_n)
+    let decrypt = encryptor.Decrypt(encrypt,items.keys.sec_a,items.keys.sec_x,items.keys.pub_n);
     console.log(result)
     
     axios({
