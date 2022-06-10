@@ -11,7 +11,8 @@ import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
 
 function PassPollBody(props) {
 
-    let {authTokens, logoutUser} = useContext(AuthContext);
+    
+    let {user, authTokens} = useContext(AuthContext);
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [items, setItems] = useState([]);
@@ -33,9 +34,8 @@ function PassPollBody(props) {
       if(response.status === 200){
         setItems(data);
         setIsLoaded(true);
-      } else if(response.status === 401) {
-        logoutUser();
-      } else if(response.status === 404) {
+      } 
+      else if(response.status === 404) {
         setIsExist(false);
       }
     };
@@ -78,14 +78,13 @@ function PassPollBody(props) {
       </div>
 )
 
-  function SendPoll(e) {
+  async function SendPoll(e) {
     e.preventDefault();
     const apiURL = 'http://localhost:8000/poll/receive'
 
-    let username = 'dmitry';
     let chooses = {
-      'username': username,
-      'poll': items.id,
+      'user': user.user_id,
+      'survey': items.id,
       'chooses': chooseValues
     }
     let experts = 999
@@ -94,17 +93,17 @@ function PassPollBody(props) {
     encryptor.SetKey(keys);
     let p2 = JSON.parse(JSON.stringify(chooses));
     let result = encryptor.EncryptSurvey(p2)
-    let encrypt = encryptor.Encrypt(8,items.keys.pub_y,items.keys.pub_n)
-    let decrypt = encryptor.Decrypt(encrypt,items.keys.sec_a,items.keys.sec_x,items.keys.pub_n);
     console.log(result)
-    
-    axios({
-      method: 'post',
-      url: apiURL,
-      data: result
+
+    let response = await fetch(apiURL, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + String(authTokens?.access)
+      },
+      body: JSON.stringify(result)
     })
   }
-
 }
 
 export default PassPollBody;

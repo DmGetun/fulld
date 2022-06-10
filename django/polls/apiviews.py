@@ -25,7 +25,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 import jwt
 from .models import User
-from .dmodule.module import Module
+from .dmodule import SurveyEncryptor
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -97,7 +97,9 @@ def add_opros(request):
 @permission_classes([IsAuthenticated,])
 def receive_survey(request):
     print(request.data)
-    serializer = AnswerSerializer(data=request.data)
+    user = User.objects.get(id=request.user.id)
+    serializer = AnswerSerializer(data=request.data,context={'user':user})
+    print(serializer.is_valid())
     if serializer.is_valid():
         choose = serializer.save()
         return Response(AnswerSerializer(choose).data,status.HTTP_200_OK)
@@ -109,7 +111,18 @@ def get_surveys_on_id(request):
     user_id = request.user.id
     p = Survey.objects.filter(creator=user_id)
     print(p)
+    answers = Answer.objects.filter(survey__in=p)
+    print(answers)
+    for answer in answers:
+        print(answer)
+        print(AnswerSerializer(data=answer).is_valid())
+    answers = AnswerSerializer(data=answers,many=True)
+    print(answers.is_valid())
+    print(answers.errors)
     serializer = SurveySerializer(p, many=True)
+    data = json.dumps(serializer.data)
+    dmodule = SurveyEncryptor(encrypted=True)
+    
     return Response(json.dumps(serializer.data),status=status.HTTP_200_OK)
     
 

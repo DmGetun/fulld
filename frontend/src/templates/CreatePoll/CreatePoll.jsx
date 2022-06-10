@@ -55,7 +55,7 @@ function CreatePoll(props){
     }
 
     function addNewQuantitativeCard(e) {
-      addQuestion([...questions,{title:'',type: quantitative, options:[{title:''}] }])
+      addQuestion([...questions,{title:'',type: quantitative, options:[] }])
     }
 
     // Добавить вариант ответа к вопросу

@@ -24,7 +24,8 @@ export class cryptoSurvey {
         let l = L(u,n)
         let s = l.modInv(n);
         let x = s.divmod(n).remainder; 
-        return {'public_key':y, 'public_exponent':n, 'private_key':alf,'private_exponent':x}
+        return {'public_key':y.toString(16), 'public_exponent':n.toString(16), 
+        'private_key':alf.toString(16),'private_exponent':x.toString(16)}
     }
 
     randInt(keysize){
@@ -44,25 +45,25 @@ export class cryptoSurvey {
             let choose = survey.chooses[id] + 1;
             let encode_choose = this.EncodeAnswer(choose);
             let encrypt_choose = this.Encrypt(encode_choose,this.n,this.y);
-            survey.chooses[id] = encrypt_choose; 
+            survey.chooses[id] = encrypt_choose.toString(16); 
         }
         return survey;
     }
 
     Encrypt(message){
         var bigInt = require("big-integer");
-        let pub_key = bigInt(this.keys.pub_key.toString());
-        let pub_exp = bigInt(this.keys.pub_exp.toString());
-        let random = bigInt('9'); // add rabinMiller
+        let pub_key = bigInt(this.keys.public_key,16);
+        let pub_exp = bigInt(this.keys.public_exponent,16);
+        let random = this.randInt(pub_exp.bitLength() - 3)
         let n_2 = pub_exp.pow(2);
         return pub_key.modPow(message,n_2).multiply(random.modPow(pub_exp,n_2)).divmod(n_2).remainder; 
     }
 
     Decrypt(message){
         var bigInt = require("big-integer");
-        let a = bigInt(this.keys.priv_key);
-        let x = bigInt(this.keys.priv_exp);
-        let n = bigInt(this.keys.pub_exp);
+        let a = bigInt(this.keys.privave_key,16);
+        let x = bigInt(this.keys.privave_exponent,16);
+        let n = bigInt(this.keys.public_exponent,16);
         let n_2 = n.pow(2);
         return L(message.modPow(a,n_2),n).multiply(x).divmod(n).remainder;
     }

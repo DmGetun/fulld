@@ -36,6 +36,7 @@ class Question(models.Model):
     title = models.CharField(max_length=255)
     order = models.IntegerField(default=1)
     survey = models.ForeignKey(Survey, related_name='questions',on_delete=models.CASCADE,null=True)
+    type = models.CharField(max_length=255)
 
     class Meta:
         ordering=['order']
@@ -60,7 +61,7 @@ class Answer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     survey = models.ForeignKey(Survey,related_name='answers',on_delete=models.CASCADE,null=True)
     question = models.ForeignKey(Question,related_name='answers',on_delete=models.CASCADE,null=True)
-    answer = models.IntegerField(default=1)
+    answer = models.CharField(max_length=4096)
 
     def __str__(self):
         return self.answer

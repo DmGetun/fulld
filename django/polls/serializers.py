@@ -27,10 +27,11 @@ class QuestionSerializer(serializers.ModelSerializer):
     title = serializers.CharField(max_length=255)
     survey = serializers.SlugRelatedField(slug_field='title',read_only=True)
     options = OptionSerializer(many=True)
+    type = serializers.CharField(max_length=255)
 
     class Meta:
         model = Question
-        fields = ['id','title','survey','options']
+        fields = ['id','title','survey','options','type']
 
     def create(self,validated_data):
         answers = validated_data['options']
@@ -38,7 +39,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 
         question = Question.objects.create(
             title=validated_data['title'],
-            survey=survey
+            survey=survey,
+            type=validated_data['type']
         )
 
         a = OptionSerializer(data=answers,context={'question': question},many=True)
@@ -89,20 +91,15 @@ class SurveySerializer(serializers.ModelSerializer):
         fields = ['id','title','questions','creator','slug','keys']
 
     def create(self, validated_data):
-        print(self.context)
-        print('create obj')
         questions = self.context['questions']
         creator = self.context['creator']
         keys = self.context['keys']
-        print(f'keys:{keys}')
         survey = Survey.objects.create(
             title = validated_data.get('title', None),
             creator = creator,
             slug = validated_data.get('slug', None)
         )
         k = KeySerializer(data=keys,context={'survey': survey})
-        k.is_valid()
-        print(k.errors)
         if k.is_valid():
             k.create(validated_data=keys)
         q = QuestionSerializer(data=questions,context={'survey': survey},many=True)
@@ -116,22 +113,22 @@ class SurveySerializer(serializers.ModelSerializer):
 
 
 class AnswerSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=255)
-    Survey = serializers.IntegerField()
+    survey = serializers.IntegerField()
     chooses = serializers.DictField()
 
     class Meta:
         model = Answer
-        fields = ['username','survey','chooses']
+        fields = ['user','survey','chooses']
 
     def create(self,validated_data):
         return Answer.objects.create(**validated_data)
 
     def save(self, *args, **kwargs):
-        Survey_id = self.data['survey']
-        p = Survey.objects.get(id=Survey_id)
-        user = self.data['username']
+        survey_id = self.data['survey']
+        p = Survey.objects.get(id=survey_id)
+        user = self.context['user']
         for key in self.data['chooses']:
+            print(key)
             q = Question.objects.get(pk=key)
-            Answer.objects.create(Survey=p,username=user,question=q,choose=self.data['chooses'][key])
+            Answer.objects.create(survey=p,user=user,question=q,answer=self.data['chooses'][key])
 
