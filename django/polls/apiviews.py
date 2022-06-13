@@ -19,12 +19,13 @@ from polls.models import Question
 from polls.models import Option
 from polls.models import Answer
 import json
+from django.core import serializers
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 import jwt
-from .models import User
+from .models import Key, User
 from .dmodule import SurveyEncryptor
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -78,11 +79,6 @@ def add_opros(request):
     context = request.data['questions']
     request.data['slug'] = get_unique_slug(Survey)
     keys = request.data['keys']
-    #dmodule = SurveyEncryptor(encrypted=True)
-    #enc_survey = dmodule.load_json(request)
-    #enc_survey.encrypt()
-    #result = enc_survey.results()
-    #enc_survey.decrypt() 
     print(request.data)
     serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user, 'keys':keys})
     print(serializer.is_valid())
@@ -98,31 +94,59 @@ def add_opros(request):
 def receive_survey(request):
     print(request.data)
     user = User.objects.get(id=request.user.id)
-    serializer = AnswerSerializer(data=request.data,context={'user':user})
-    print(serializer.is_valid())
-    if serializer.is_valid():
-        choose = serializer.save()
-        return Response(AnswerSerializer(choose).data,status.HTTP_200_OK)
-    return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+    survey_id = request.data['survey']
+    survey = Survey.objects.get(id=survey_id)
+    print(survey)
+    for question,answer in request.data['answers'].items():
+        q = Question.objects.get(id=question)
+        data = {'question': q, 'answer':answer,'survey':survey}
+        serializer = AnswerSerializer(data=data,context={'user':user,'question': q,'survey':survey})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+    return Response(status.HTTP_200_OK)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def get_surveys_on_id(request):
     user_id = request.user.id
     p = Survey.objects.filter(creator=user_id)
-    print(p)
     answers = Answer.objects.filter(survey__in=p)
-    print(answers)
     for answer in answers:
-        print(answer)
         print(AnswerSerializer(data=answer).is_valid())
     answers = AnswerSerializer(data=answers,many=True)
-    print(answers.is_valid())
-    print(answers.errors)
     serializer = SurveySerializer(p, many=True)
     data = json.dumps(serializer.data)
     dmodule = SurveyEncryptor(encrypted=True)
     
     return Response(json.dumps(serializer.data),status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated,])
+def get_result(request,slug=None):
+    user_id = request.user.id
+    p = Survey.objects.get(slug=slug)
+    q = Question.objects.filter(survey=p)
+    key = Key.objects.get(survey=p)
+    pub_key = json.loads(serializers.serialize('json',[key,]))[0]['fields']['public_key']
+    dict_ = []
+    for question in q:
+        a = Answer.objects.filter(question=question)
+        res = json.loads(serializers.serialize('json',a))
+        answers = []
+        for item in res:
+            answers.append(item['fields']['answer'])
+        if len(answers) == 0: continue
+        sum = SurveyEncryptor.get_sum(answers,pub_key)
+        q_id = QuestionSerializer(question).data['title']
+        options = QuestionSerializer(question).data['options']
+        dict_.append({'title':q_id, 'options':options ,'sum':hex(sum)[2:]})
+    
+    title = SurveySerializer(p).data['title']
+    message = {
+        'title': title,
+        'questions': dict_
+    }
+    return Response(json.dumps(message),status=status.HTTP_200_OK)
     
 

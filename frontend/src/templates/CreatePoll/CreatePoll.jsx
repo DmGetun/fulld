@@ -97,10 +97,12 @@ function CreatePoll(props){
           <form onSubmit={SendPoll}>  
             <PollTitleField changeValue={setPollTitle}/>
             {cards}
-            <AddQuestionButton onClick={addNewQuantitativeCard} type={qualitative}></AddQuestionButton>
-            <AddQuestionButton onClick={addNewQualitativeCard} type={quantitative}></AddQuestionButton>
-            <div class='add-question-button'>
-              <Button type='submit'>Сохранить</Button>
+            <div className='add-button-group'>
+              <AddQuestionButton onClick={addNewQuantitativeCard} type={qualitative}></AddQuestionButton>
+              <AddQuestionButton onClick={addNewQualitativeCard} type={quantitative}></AddQuestionButton>
+            </div>
+            <div className='button-center'>
+              <Button type='submit' className=''>Сохранить</Button>
             </div>
           </form>
         </div>
@@ -122,7 +124,7 @@ function CreatePoll(props){
       'private_key': keys.private_key.toString(16),
       'private_exponent': keys.private_exponent.toString(16)};
     console.log(survey)
-    localStorage.setItem('sec_keys',JSON.stringify({'private_key': keys.private_key.toString(16),
+    localStorage.setItem(`${survey.title}`,JSON.stringify({'private_key': keys.private_key.toString(16),
     'private_exponent': keys.private_exponent.toString(16)}))
     
     let response = await fetch(apiURL, {

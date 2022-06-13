@@ -85,7 +85,7 @@ function PassPollBody(props) {
     let chooses = {
       'user': user.user_id,
       'survey': items.id,
-      'chooses': chooseValues
+      'answers': chooseValues
     }
     let experts = 999
     let encryptor = new cryptoSurvey(experts);

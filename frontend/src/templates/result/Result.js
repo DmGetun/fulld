@@ -2,17 +2,21 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/AuthContext";
 import PollCard from "./PollCard";
-import { API_URL_GET_USER_POLLS } from "../static/constants";
-function Polls(props) {
+import {API_URL_RESULT_POLL} from "../static/constants";
+import { useParams } from "react-router";
+import { cryptoSurvey } from "../../CryptoModule/cryptoSurvey";
+function ResultPoll(props) {
     
     let {authTokens, user} = useContext(AuthContext);
 
     const [polls, setPolls] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isNull, setIsNull] = useState(false);
+    let params = useParams();
+    let slug = params.slug;
 
     async function get_add_polls() {
-        const apiURL = API_URL_GET_USER_POLLS
+        const apiURL = API_URL_RESULT_POLL + slug + '/';
         let response = await fetch(apiURL, {
             method: "POST",
             headers: {
@@ -37,7 +41,6 @@ function Polls(props) {
 
     useEffect(() => {
             get_add_polls();
-        
     }, [])
 
     return (
@@ -45,9 +48,9 @@ function Polls(props) {
         {
             isNull ? <h1 align='center'>У вас нет созданных опросов</h1> 
             : isLoading ?
-            polls.map(poll => (
-                <PollCard title={poll.title} questions={poll.questions} slug={poll.slug} />
-            ))
+
+                <PollCard title={polls.title} questions={polls.questions} />
+            
             : <h1>loading...</h1>
         }
         </div>
@@ -55,4 +58,4 @@ function Polls(props) {
 
 }
 
-export default Polls;
+export default ResultPoll;

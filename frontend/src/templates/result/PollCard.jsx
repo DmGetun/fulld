@@ -9,11 +9,10 @@ function PollCard(props) {
                 <div>
                     {
                         props.questions.map(question => (
-                            <h4 class="text-dark">{question.title}</h4>
+                            <h4 class="text-dark">{question.title} {question.sum}</h4>
                         ))
                     }
                 </div>
-                <Button onClick={() => window.location.assign("/result/" + props.slug + '/')}>Подробнее</Button>
           </div>
         </div>
     );

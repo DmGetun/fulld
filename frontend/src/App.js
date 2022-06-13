@@ -16,6 +16,7 @@ import PrivateRoute from './utils/PrivateRoute';
 import AuthProvider from './context/AuthContext';
 import Polls from './templates/user/polls';
 import GeneralPage from './templates/PassPolls/GeneralPage';
+import ResultPoll from './templates/result/Result';
 
 
 function App() {
@@ -48,6 +49,11 @@ function App() {
               <Route path='/create' element={
                 <PrivateRoute>
                   <CreatePollBody/>
+                </PrivateRoute>
+              }/>
+              <Route path='/result/:slug' element={
+                <PrivateRoute>
+                  <ResultPoll/>
                 </PrivateRoute>
               }/>
 

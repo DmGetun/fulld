@@ -53,9 +53,20 @@
     float: right;
 }
 
+.add-button-group {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-center {
+    text-align: center;
+}
+
 .add-question-button{
-    margin:10px 0;
-    text-align:center;
+    margin-left: 40%;
+    display:inline;
 }
 
 .add-answer-button {

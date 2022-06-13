@@ -41,11 +41,11 @@ export class cryptoSurvey {
     }
 
     EncryptSurvey(survey){
-        for (let id in survey.chooses){
-            let choose = survey.chooses[id] + 1;
+        for (let id in survey.answers){
+            let choose = survey.answers[id] + 1;
             let encode_choose = this.EncodeAnswer(choose);
             let encrypt_choose = this.Encrypt(encode_choose,this.n,this.y);
-            survey.chooses[id] = encrypt_choose.toString(16); 
+            survey.answers[id] = encrypt_choose.toString(16); 
         }
         return survey;
     }

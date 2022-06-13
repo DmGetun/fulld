@@ -113,22 +113,22 @@ class SurveySerializer(serializers.ModelSerializer):
 
 
 class AnswerSerializer(serializers.ModelSerializer):
-    survey = serializers.IntegerField()
-    chooses = serializers.DictField()
+    id = serializers.IntegerField(read_only=True)
+    survey = serializers.SlugRelatedField(slug_field='title',read_only=True)
+    question = serializers.SlugRelatedField(slug_field='title',read_only=True)
+    answer = serializers.CharField(max_length=4096)
 
     class Meta:
         model = Answer
-        fields = ['user','survey','chooses']
+        fields = ['id','survey','question','answer']
 
     def create(self,validated_data):
         return Answer.objects.create(**validated_data)
 
     def save(self, *args, **kwargs):
-        survey_id = self.data['survey']
-        p = Survey.objects.get(id=survey_id)
+        answer = self.data['answer']
+        survey = self.context['survey']
+        q = self.context['question']
         user = self.context['user']
-        for key in self.data['chooses']:
-            print(key)
-            q = Question.objects.get(pk=key)
-            Answer.objects.create(survey=p,user=user,question=q,answer=self.data['chooses'][key])
+        Answer.objects.create(user=user,question=q,answer=answer,survey=survey)
 

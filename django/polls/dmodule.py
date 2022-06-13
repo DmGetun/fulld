@@ -97,7 +97,14 @@ class SurveyEncryptor():
     def add_result(question,result):
         question['result'] = result
 
+    @classmethod
+    def get_sum(cls,answers,n):
+        n = int(n,16)
+        res = reduce(lambda a,b: (a * b) % (n * n),[int(answer,16) for answer in answers]) % (n * n)
+        return res
+
     def summator(answers,n):
+        n = int(n,16)
         res = reduce(lambda a,b: (a * b) % (n * n),[answer.value for answer in answers]) % (n * n)
         #res = math.prod([answer.value for answer in answers]) % (n * n)
         return res
