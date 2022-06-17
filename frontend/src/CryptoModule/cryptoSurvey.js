@@ -69,10 +69,25 @@ export class cryptoSurvey {
     }
 
     EncodeAnswer(answer){
-        let n = this.expertsNumber;
-        let k = Math.ceil(Math.log2(n));
+        let k = this.GetStep();
         let encode_answer = Math.pow(2,(k * (answer - 1)));
         return encode_answer;
+    }
+
+    DecodeResult(result){
+        let k = this.GetStep();
+        let decoded = {}
+        let index = 1
+        while (result > 0) {
+            r = result & ~(-k);
+            result >>= k
+            decoded[index++] = r
+        }
+        return decoded
+    }
+
+    GetStep(){
+        return Math.ceil(Math.log2(this.expertsNumber));
     }
 }
 

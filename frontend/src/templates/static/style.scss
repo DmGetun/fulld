@@ -54,14 +54,12 @@
 }
 
 .add-button-group {
-    margin-left: auto;
-    margin-right: auto;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
 }
 
 .button-center {
     text-align: center;
+    justify-content: center;
 }
 
 .add-question-button{
@@ -165,6 +163,10 @@
 
 .link {
     color: $yellow;
+
+    &:hover {
+        color:red;
+    }
 }
 
 h1 {

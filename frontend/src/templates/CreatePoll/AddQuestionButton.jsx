@@ -1,4 +1,5 @@
 import { Button } from 'reactstrap';
+import './buttons.scss'
 
 function AddQuestionButton(props) {
 
@@ -6,11 +7,9 @@ function AddQuestionButton(props) {
     let addQuestion = props.onClick;
     let name = props.type;
     return(
-        <div class='add-question-button'>
-            <Button onClick={(e) => addQuestion(e)} name={name}>
+            <a className='btn btn-white btn-animate' onClick={(e) => addQuestion(e)} name={name}>
                 Добавить {name !== 'Quantitative' ? 'количественный' : 'качественный'} вопрос
-            </Button>
-        </div>
+            </a>
     );
 }
 

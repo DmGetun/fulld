@@ -12,6 +12,7 @@ import { API_URL_CREATE_POLL } from '../static/constants';
 import { useNavigate } from 'react-router';
 import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
 import AddQuestionButton from './AddQuestionButton';
+import './save.scss';
 
 function CreatePoll(props){
 
@@ -55,7 +56,7 @@ function CreatePoll(props){
     }
 
     function addNewQuantitativeCard(e) {
-      addQuestion([...questions,{title:'',type: quantitative, options:[] }])
+      addQuestion([...questions,{title:'',type: quantitative, options:[{title: ''}, {title: ''}] }])
     }
 
     // Добавить вариант ответа к вопросу
@@ -102,7 +103,7 @@ function CreatePoll(props){
               <AddQuestionButton onClick={addNewQualitativeCard} type={quantitative}></AddQuestionButton>
             </div>
             <div className='button-center'>
-              <Button type='submit' className=''>Сохранить</Button>
+              <Button className='button' type='submit'>Сохранить</Button>
             </div>
           </form>
         </div>
@@ -117,13 +118,17 @@ function CreatePoll(props){
 
     survey['experts_number'] = 999
     let encryptor = new cryptoSurvey();
-    let keys = encryptor.GenerateKey();
+    console.time('generate key time')
+    let keys = encryptor.GenerateKey(2048);
+    console.timeEnd('generate key time')
+
     survey['keys'] = {
       'public_key': keys.public_key.toString(16), 
       'public_exponent': keys.public_exponent.toString(16),
       'private_key': keys.private_key.toString(16),
       'private_exponent': keys.private_exponent.toString(16)};
-    console.log(survey)
+
+
     localStorage.setItem(`${survey.title}`,JSON.stringify({'private_key': keys.private_key.toString(16),
     'private_exponent': keys.private_exponent.toString(16)}))
     

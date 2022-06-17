@@ -1,5 +1,6 @@
 import math
 import random
+import secrets
 
 class rabinMiller:
     def rabinMiller(self,num):
@@ -46,7 +47,10 @@ class rabinMiller:
 
     def generateLargePrime(self,keysize = 1024):
         while True:
-            num = random.randrange(2**(keysize-1), 2**(keysize))
+            #num = random.randrange(2**(keysize-1), 2**(keysize))
+            #num = int.from_bytes(secrets.token_bytes(int(keysize//8)),byteorder='little',signed=False)
+            #num = int(secrets.token_hex(int(keysize//8)),16)
+            num = random.getrandbits(keysize)
             if self.isPrime(num):
                 return num
 

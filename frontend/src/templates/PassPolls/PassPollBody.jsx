@@ -8,6 +8,7 @@ import { Button } from 'reactstrap';
 import axios from 'axios';
 import { API_URL_TAKE_POLL } from '../static/constants';
 import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
+import './save.scss';
 
 function PassPollBody(props) {
 
@@ -73,7 +74,9 @@ function PassPollBody(props) {
               </Answers>
             </PassQuestionCard>
          )}
-          <Button type='submit'>Сохранить</Button>
+         <div className='center'>
+          <Button className='button' type='submit'>Сохранить</Button>
+         </div>
         </form>
       </div>
 )
@@ -92,7 +95,9 @@ function PassPollBody(props) {
     let keys = encryptor.GenerateKey();
     encryptor.SetKey(keys);
     let p2 = JSON.parse(JSON.stringify(chooses));
+    console.time('time to decrypt answers')
     let result = encryptor.EncryptSurvey(p2)
+    console.timeEnd('time to decrypt answers')
     console.log(result)
 
     let response = await fetch(apiURL, {

@@ -15,9 +15,8 @@ class Survey_encryptor:
         generate a 
         '''
         miller = rabinMiller()
-        p:int = miller.generateLargePrime(keysize/2) # случайное простое число
-        q:int = miller.generateLargePrime(keysize/2) # случайное простое число
-        print(len(bin(p * q).replace('0b','')))
+        p:int = miller.generateLargePrime(keysize//2) # случайное простое число
+        q:int = miller.generateLargePrime(keysize//2) # случайное простое число
         if math.gcd(p * q,(p - 1) * (q - 1)) != 1:
             return 'error'
 
