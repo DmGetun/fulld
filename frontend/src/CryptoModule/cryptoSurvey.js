@@ -50,6 +50,14 @@ export class cryptoSurvey {
         return survey;
     }
 
+    EncryptMessages(messages){
+        let result = Array()
+        for (let message in messages) {
+            result.push(this.Encrypt(message));
+        }
+        return result;
+    }
+
     Encrypt(message){
         var bigInt = require("big-integer");
         let pub_key = bigInt(this.keys.public_key,16);
@@ -57,6 +65,14 @@ export class cryptoSurvey {
         let random = this.randInt(pub_exp.bitLength() - 3)
         let n_2 = pub_exp.pow(2);
         return pub_key.modPow(message,n_2).multiply(random.modPow(pub_exp,n_2)).divmod(n_2).remainder; 
+    }
+
+    DecryptMessages(messages,factor){
+        let result = Array()
+        for (let message in messages) {
+            result.push(this.Decrypt(message) / factor)
+        }
+        return result
     }
 
     Decrypt(message){
@@ -84,6 +100,11 @@ export class cryptoSurvey {
             decoded[index++] = r
         }
         return decoded
+    }
+
+    InterpQuantitative(answers){
+        let result = {}
+        decryptAnswers = this.DecryptMessages(answers); 
     }
 
     GetStep(){
