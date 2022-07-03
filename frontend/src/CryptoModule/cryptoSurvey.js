@@ -69,9 +69,11 @@ export class cryptoSurvey {
         var bigInt = require("big-integer");
         let pub_key = bigInt(this.keys.public_key,16);
         let pub_exp = bigInt(this.keys.public_exponent,16);
-        let random = this.randInt(pub_exp.bitLength() - 3)
+        //let random = this.randInt(pub_exp.bitLength() - 3)
+        let random = this.randInt(28)
         let n_2 = pub_exp.pow(2);
-        return pub_key.modPow(message,n_2).multiply(random.modPow(pub_exp,n_2)).divmod(n_2).remainder; 
+        let result = pub_key.modPow(message,n_2).multiply(random.modPow(pub_exp,n_2)).divmod(n_2).remainder;
+        return result.toString(16)
     }
 
     DecryptMessages(messages,factor){

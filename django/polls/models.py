@@ -13,6 +13,10 @@ class Navigate(models.Model):
     slug = models.SlugField(max_length=70,blank=True)
     db_id = models.CharField(max_length=256)
 
+class Results(models.Model):
+    slug = models.SlugField(max_length=70,blank=True)
+    db_id = models.CharField(max_length=256)
+
 class Survey(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=70,blank=True)

@@ -25,7 +25,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 import jwt
-from .models import Key, User
+from .models import Key, Results, User
 from .dmodule import SurveyEncryptor
 from .models import Navigate
 
@@ -67,7 +67,9 @@ def get_opros(request,slug = None):
     db = c['test1']
     n = Navigate.objects.filter(slug=slug)
     id = n.values('db_id')[0]['db_id']
+    slug = n.values('slug')[0]['slug']
     doc = db[id]
+    doc['slug'] = slug
     return Response(doc,status=HTTP_200_OK)
     if slug is None:
         p = Survey.objects.all()[0]
@@ -106,19 +108,29 @@ def add_opros(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def receive_survey(request):
-    print(request.data)
-    user = User.objects.get(id=request.user.id)
-    survey_id = request.data['survey']
-    survey = Survey.objects.get(id=survey_id)
-    print(survey)
-    for question,answer in request.data['answers'].items():
-        q = Question.objects.get(id=question)
-        data = {'question': q, 'answer':answer,'survey':survey}
-        serializer = AnswerSerializer(data=data,context={'user':user,'question': q,'survey':survey})
-        if not serializer.is_valid():
-            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-    return Response(status.HTTP_200_OK)
+    import couchdb
+    c = couchdb.Server('http://admin:7776@localhost:5984')
+    db = c['results']
+    del request.data['_id']
+    del request.data['_rev']
+    id,rev = db.save(request.data)
+    Results.objects.create(slug=request.data['slug'],db_id=id)
+    return Response(db[id],status=HTTP_200_OK)
+
+
+    # print(request.data)
+    # user = User.objects.get(id=request.user.id)
+    # survey_id = request.data['survey']
+    # survey = Survey.objects.get(id=survey_id)
+    # print(survey)
+    # for question,answer in request.data['answers'].items():
+    #     q = Question.objects.get(id=question)
+    #     data = {'question': q, 'answer':answer,'survey':survey}
+    #     serializer = AnswerSerializer(data=data,context={'user':user,'question': q,'survey':survey})
+    #     if not serializer.is_valid():
+    #         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+    #     serializer.save()
+    # return Response(status.HTTP_200_OK)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])

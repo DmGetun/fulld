@@ -128,7 +128,9 @@ class SurveyEncryptor():
             public_key=hex(y)[2:],
             public_exponent=hex(n)[2:],
             private_key=hex(alf)[2:],
-            private_exponent=hex(x)[2:]
+            private_exponent=hex(x)[2:],
+            p=p,
+            q=q
         )
 
     def encrypt_answers(self,answers:list,key:tuple):

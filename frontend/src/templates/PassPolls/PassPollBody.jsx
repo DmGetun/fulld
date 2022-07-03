@@ -103,23 +103,23 @@ function PassPollBody(props) {
       'survey': items.id,
       'answers': chooseValues
     }
-    let experts = 999
+    let experts = items.experts_number
     let encryptor = new cryptoSurvey(experts);
-    let keys = encryptor.GenerateKey();
+    let keys = items['keys']
     encryptor.SetKey(keys);
     let p2 = JSON.parse(JSON.stringify(chooses));
-    console.time('time to decrypt answers')
-    let result = encryptor.EncryptSurvey(p2)
-    console.timeEnd('time to decrypt answers')
-    console.log(result)
-
+    items['questions'] = states.map(state => 
+      state.type !== 'range' ? {...state,['answer']:encryptor.Encrypt(state.answer)} 
+      : {...state,['answers']: encryptor.EncryptMessages(state.answer)}
+    )
+    console.log(items)
     let response = await fetch(apiURL, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + String(authTokens?.access)
       },
-      body: JSON.stringify(result)
+      body: JSON.stringify(items)
     })
   }
 }

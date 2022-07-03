@@ -12,9 +12,9 @@ export function RangeCard(props) {
     
 
     const [cardList,setCardList] = useState([
-        {id:1,order:3,text:'Карточка3'},
-        {id:2,order:1,text:'Карточка1'},
-        {id:3,order:2,text:'Карточка2'},
+        {id:1,order:1,text:'Карточка1'},
+        {id:2,order:2,text:'Карточка2'},
+        {id:3,order:3,text:'Карточка3'},
         {id:4,order:4,text:'Карточка4'},
       ])
      
@@ -56,7 +56,7 @@ export function RangeCard(props) {
 
       function changeValue() {
           let id_list = cardList.map(card => card.id)
-          question['answer'] = cardList
+          question['answer'] = id_list
           onChange(question)
       }
 

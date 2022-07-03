@@ -9,13 +9,14 @@ export function QuantitativeCard(props) {
     let question = props.question
     let options = question.options
 
-    let minValue = options[1].title
-    let maxValue = options[2].title
+    let minValue = +options[1].title
+    let maxValue = +options[2].title
 
     let onChange = props.onChange
 
     function changeValue(e) {
         let answer = +e.target.value
+        if (answer < minValue || answer > maxValue) return
         question['answer'] = answer
 
         onChange(question)
