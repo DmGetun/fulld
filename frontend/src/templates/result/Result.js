@@ -5,6 +5,7 @@ import PollCard from "./PollCard";
 import {API_URL_RESULT_POLL} from "../static/constants";
 import { useParams } from "react-router";
 import { cryptoSurvey } from "../../CryptoModule/cryptoSurvey";
+
 function ResultPoll(props) {
     
     let {authTokens, user} = useContext(AuthContext);
@@ -12,6 +13,7 @@ function ResultPoll(props) {
     const [polls, setPolls] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isNull, setIsNull] = useState(false);
+    const [primaryPoll,setPrimaryPoll] = useState([])
     let params = useParams();
     let slug = params.slug;
 
@@ -35,6 +37,7 @@ function ResultPoll(props) {
                 return;
             }
             setPolls(polls);
+            setPrimaryPoll(polls[0])
             setIsLoading(true);
         }
     }
@@ -48,9 +51,10 @@ function ResultPoll(props) {
         {
             isNull ? <h1 align='center'>У вас нет созданных опросов</h1> 
             : isLoading ?
-
-                <PollCard title={polls.title} questions={polls.questions} />
-            
+                    primaryPoll.questions.map((poll,i) => 
+                        <PollCard key={i} question={poll} />
+                    )
+                    
             : <h1>loading...</h1>
         }
         </div>

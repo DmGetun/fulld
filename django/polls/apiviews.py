@@ -71,13 +71,13 @@ def get_opros(request,slug = None):
     doc = db[id]
     doc['slug'] = slug
     return Response(doc,status=HTTP_200_OK)
-    if slug is None:
-        p = Survey.objects.all()[0]
-    else:
-        p = get_object_or_404(Survey,slug=slug)
-        print(SurveySerializer(p).data)
-        return Response(SurveySerializer(p).data)
-    return Response({'error': 'Указанный опрос не найден'},status=HTTP_404_NOT_FOUND)
+    # if slug is None:
+    #     p = Survey.objects.all()[0]
+    # else:
+    #     p = get_object_or_404(Survey,slug=slug)
+    #     print(SurveySerializer(p).data)
+    #     return Response(SurveySerializer(p).data)
+    # return Response({'error': 'Указанный опрос не найден'},status=HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])
@@ -93,16 +93,17 @@ def add_opros(request):
     context = request.data['questions']
     slug = get_unique_slug(Survey)
     request.data['slug'] = slug
-    Navigate.objects.create(slug=slug,db_id=id)
-    keys = request.data['keys']
-    print(request.data)
-    serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user, 'keys':keys})
-    print(serializer.is_valid())
-    print(serializer.errors)
-    if serializer.is_valid():
-        survey = serializer.create(validated_data=request.data)
-        return Response(SurveySerializer(survey).data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    Navigate.objects.create(creator=user,slug=slug,db_id=id)
+    return Response(db[id],status=HTTP_200_OK)
+    # keys = request.data['keys']
+    # print(request.data)
+    # serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user, 'keys':keys})
+    # print(serializer.is_valid())
+    # print(serializer.errors)
+    # if serializer.is_valid():
+    #     survey = serializer.create(validated_data=request.data)
+    #     return Response(SurveySerializer(survey).data, status=status.HTTP_200_OK)
+    # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -135,44 +136,71 @@ def receive_survey(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def get_surveys_on_id(request):
-    user_id = request.user.id
-    p = Survey.objects.filter(creator=user_id)
-    answers = Answer.objects.filter(survey__in=p)
-    for answer in answers:
-        print(AnswerSerializer(data=answer).is_valid())
-    answers = AnswerSerializer(data=answers,many=True)
-    serializer = SurveySerializer(p, many=True)
-    data = json.dumps(serializer.data)
-    dmodule = SurveyEncryptor(encrypted=True)
+    user = User.objects.get(id=request.user.id)
+    results = Navigate.objects.filter(creator=user).values_list('slug','db_id')
+    print(f'{results=}')
+    import couchdb
+    c = couchdb.Server('http://admin:7776@localhost:5984')
+    db = c['test1']
+    docs = []
+    for slug in results:
+        print(slug[0])
+        doc = db[slug[1]]
+        doc['slug'] = slug[0]
+        
+        docs.append(doc)
+
+    return Response(json.dumps(docs),status=HTTP_200_OK)
+    # p = Survey.objects.filter(creator=user_id)
+    # answers = Answer.objects.filter(survey__in=p)
+    # for answer in answers:
+    #     print(AnswerSerializer(data=answer).is_valid())
+    # answers = AnswerSerializer(data=answers,many=True)
+    # serializer = SurveySerializer(p, many=True)
+    # data = json.dumps(serializer.data)
+    # dmodule = SurveyEncryptor(encrypted=True)
     
-    return Response(json.dumps(serializer.data),status=status.HTTP_200_OK)
+    # return Response(json.dumps(serializer.data),status=status.HTTP_200_OK)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def get_result(request,slug=None):
     user_id = request.user.id
-    p = Survey.objects.get(slug=slug)
-    q = Question.objects.filter(survey=p)
-    key = Key.objects.get(survey=p)
-    pub_key = json.loads(serializers.serialize('json',[key,]))[0]['fields']['public_key']
-    dict_ = []
-    for question in q:
-        a = Answer.objects.filter(question=question)
-        res = json.loads(serializers.serialize('json',a))
-        answers = []
-        for item in res:
-            answers.append(item['fields']['answer'])
-        if len(answers) == 0: continue
-        sum = SurveyEncryptor.get_sum(answers,pub_key)
-        q_id = QuestionSerializer(question).data['title']
-        options = QuestionSerializer(question).data['options']
-        dict_.append({'title':q_id, 'options':options ,'sum':hex(sum)[2:]})
+
+    results = Results.objects.filter(slug=slug).values_list('db_id')
+    print(results)
+    import couchdb
+    c = couchdb.Server('http://admin:7776@localhost:5984')
+    db = c['results']
+    docs = []
+    for result in results:
+        print(result)
+        docs.append(db[result[0]])
+
+    return Response(json.dumps(docs),status=HTTP_200_OK)
+
+    # p = Survey.objects.get(slug=slug)
+    # q = Question.objects.filter(survey=p)
+    # key = Key.objects.get(survey=p)
+    # pub_key = json.loads(serializers.serialize('json',[key,]))[0]['fields']['public_key']
+    # dict_ = []
+    # for question in q:
+    #     a = Answer.objects.filter(question=question)
+    #     res = json.loads(serializers.serialize('json',a))
+    #     answers = []
+    #     for item in res:
+    #         answers.append(item['fields']['answer'])
+    #     if len(answers) == 0: continue
+    #     sum = SurveyEncryptor.get_sum(answers,pub_key)
+    #     q_id = QuestionSerializer(question).data['title']
+    #     options = QuestionSerializer(question).data['options']
+    #     dict_.append({'title':q_id, 'options':options ,'sum':hex(sum)[2:]})
     
-    title = SurveySerializer(p).data['title']
-    message = {
-        'title': title,
-        'questions': dict_
-    }
-    return Response(json.dumps(message),status=status.HTTP_200_OK)
+    # title = SurveySerializer(p).data['title']
+    # message = {
+    #     'title': title,
+    #     'questions': dict_
+    # }
+    # return Response(json.dumps(message),status=status.HTTP_200_OK)
     
 

@@ -11,6 +11,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 class Navigate(models.Model):
     slug = models.SlugField(max_length=70,blank=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
     db_id = models.CharField(max_length=256)
 
 class Results(models.Model):
