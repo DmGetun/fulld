@@ -100,46 +100,6 @@ function CreatePoll(props){
   </CreateQuestionCard>
  );
 
- const [cardList,setCardList] = useState([
-   {id:1,order:3,text:'Карточка3'},
-   {id:2,order:1,text:'Карточка1'},
-   {id:3,order:2,text:'Карточка2'},
-   {id:4,order:4,text:'Карточка4'},
- ])
-
- const [currentCard, setCurrentCard] = useState(null)
-
- function dragStartHandler(e,card){
-    setCurrentCard(card)
- }
- function dragEndHandler(e){
-  e.target.style.background = 'white'
- }
- function dragOverHandler(e){
-  e.preventDefault()
-  e.target.style.background = 'lightgray'
- }
- function dragDropHandler(e,card){
-  e.preventDefault()
-  setCardList(cardList.map(c => {
-    if (c.id === card.id) {
-      return {...c,order: currentCard.order}
-    }
-    if (c.id === currentCard.id) {
-      return {...c,order: card.order}
-    }
-    return c
-  }))
-  e.target.style.background = 'white'
- }
-
- const sortCards = (a,b) => {
-  if (a.order > b.order) {
-    return 1;
-  }
-  return -1;
- }
-
   return (
     <div class="container">
         <div class="">

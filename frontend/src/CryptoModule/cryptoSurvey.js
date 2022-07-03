@@ -1,7 +1,8 @@
 import './utils';
 import { gcd, lcm, pow, L, modinv} from './utils';
 
-
+let bigInt = require("big-integer");
+let crypto = require("randombytes");
 export class cryptoSurvey {
 
     constructor(expertsNumber) {
@@ -13,7 +14,6 @@ export class cryptoSurvey {
     }
 
     GenerateKey(keysize=1024){
-        var bigInt = require("big-integer");
         let p = this.randInt(keysize/2);
         let q = this.randInt(keysize/2);
         let n = p.multiply(q)
@@ -29,13 +29,6 @@ export class cryptoSurvey {
     }
 
     randInt(keysize){
-        var bigInt = require("big-integer");
-        var crypto = require("randombytes");
-        let a = {
-            'size': 2048,
-            'public': 123,
-            'private': 456
-        }
         while(true){
             let random =  crypto(keysize/8)
             random[random.byteLength-1] = random[random.byteLength-1] | 0x01   
@@ -109,6 +102,47 @@ export class cryptoSurvey {
             decoded[index++] = r
         }
         return decoded
+    }
+
+    AgregateResult(surveys) {
+        let survey = surveys[0]
+        for (let i = 0; i < surveys.length; i++) {
+            let question = surveys[i].questions
+            let results = surveys.map(survey => bigInt(survey.questions[i]['answer'],16))
+            if (question[i].type === 'qualitative') {
+                let decrypted_results = this.AgregateQualitative(results)
+                survey.questions[i]['result'] = decrypted_results
+            }
+            if (question[i].type === 'quantitative') {
+                let decrypted_results = this.AgregateQuantitative(results)
+                survey.questions[i]['result'] = decrypted_results
+            }
+            // if (question[i].type === 'range') {
+            //     let decrypted_results = this.AgregateQualitative(results)
+            //     console.log(decrypted_results)
+            // }
+        }
+        return survey
+    }
+
+    AgregateQuantitative(answers) {
+        let sum = this.ArrayAddition(answers)
+        let encrypted_result = this.Decrypt(sum)
+        return encrypted_result / answers.length
+    }
+
+    AgregateQualitative(answers) {
+        let sum = this.ArrayAddition(answers)
+        return this.DecodeResult(sum)
+    }
+
+    ArrayAddition(values) {
+        let module = bigInt(this.keys.public_exponent,16);
+        return values.reduce((a,b) => a.multiply(b).mod(module))
+    }
+
+    Addition(a,b,m) {
+        return a * b % m
     }
 
     InterpQuantitative(answers){

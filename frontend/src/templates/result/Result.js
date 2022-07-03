@@ -36,8 +36,8 @@ function ResultPoll(props) {
                 setIsNull(true);
                 return;
             }
+            polls = Agregate(polls)
             setPolls(polls);
-            setPrimaryPoll(polls[0])
             setIsLoading(true);
         }
     }
@@ -46,12 +46,18 @@ function ResultPoll(props) {
             get_add_polls();
     }, [])
 
+    function Agregate(surveys){
+        let agregator = new cryptoSurvey(surveys[0].experts_number)
+        agregator.SetKey(surveys[0].keys)
+        return agregator.AgregateResult(surveys)
+    }
+
     return (
         <div>
         {
             isNull ? <h1 align='center'>У вас нет созданных опросов</h1> 
             : isLoading ?
-                    primaryPoll.questions.map((poll,i) => 
+                    polls.questions.map((poll,i) => 
                         <PollCard key={i} question={poll} />
                     )
                     
