@@ -19,10 +19,11 @@ function CreatePoll(props){
   const apiURL = API_URL_CREATE_POLL;
   let {user, authTokens} = useContext(AuthContext);
 
-  let qualitative = 'Qualitative'
-  let quantitative = 'Quantitative'
+  let qualitative = 'qualitative'
+  let quantitative = 'quantitative'
+  let range = 'range'
 
-  const answerTemplate = [{title: ''},{title: ''}]
+  const answerTemplate = [{title: '', label:''},{title: '', label:''}]
 
   const [questions, addQuestion] = useState([{
     'title': '',
@@ -56,7 +57,14 @@ function CreatePoll(props){
     }
 
     function addNewQuantitativeCard(e) {
-      addQuestion([...questions,{title:'',type: quantitative, options:[{title: ''}, {title: ''}] }])
+      addQuestion([...questions,{title:'',type: quantitative, options:
+      [{label: 'Множитель', title:''}, 
+      {label: 'Минимальное значение', title:''}, 
+      {label: 'Максимальное значение', title:''}] }])
+    }
+
+    function addNewRangeCard(e){
+      addQuestion([...questions,{title: '', options: answerTemplate, type:range}])
     }
 
     // Добавить вариант ответа к вопросу
@@ -82,7 +90,7 @@ function CreatePoll(props){
     <QTitleField key={question_id} id = {'title_' + question_id} changeValue={setQuestionTitle}/>
     <Answers>
       { card['options'].map((answer,answer_id) => 
-        <AnswerField name={question_id} question_id={question_id} id={answer_id} changeValue={setAnswer}></AnswerField>
+        <AnswerField label={answer.label} value={answer} name={question_id} question_id={question_id} id={answer_id} changeValue={setAnswer}></AnswerField>
       ) }
     </Answers>
     {card.type === qualitative ?
@@ -91,6 +99,46 @@ function CreatePoll(props){
     }
   </CreateQuestionCard>
  );
+
+ const [cardList,setCardList] = useState([
+   {id:1,order:3,text:'Карточка3'},
+   {id:2,order:1,text:'Карточка1'},
+   {id:3,order:2,text:'Карточка2'},
+   {id:4,order:4,text:'Карточка4'},
+ ])
+
+ const [currentCard, setCurrentCard] = useState(null)
+
+ function dragStartHandler(e,card){
+    setCurrentCard(card)
+ }
+ function dragEndHandler(e){
+  e.target.style.background = 'white'
+ }
+ function dragOverHandler(e){
+  e.preventDefault()
+  e.target.style.background = 'lightgray'
+ }
+ function dragDropHandler(e,card){
+  e.preventDefault()
+  setCardList(cardList.map(c => {
+    if (c.id === card.id) {
+      return {...c,order: currentCard.order}
+    }
+    if (c.id === currentCard.id) {
+      return {...c,order: card.order}
+    }
+    return c
+  }))
+  e.target.style.background = 'white'
+ }
+
+ const sortCards = (a,b) => {
+  if (a.order > b.order) {
+    return 1;
+  }
+  return -1;
+ }
 
   return (
     <div class="container">
@@ -101,6 +149,7 @@ function CreatePoll(props){
             <div className='add-button-group'>
               <AddQuestionButton onClick={addNewQuantitativeCard} type={qualitative}></AddQuestionButton>
               <AddQuestionButton onClick={addNewQualitativeCard} type={quantitative}></AddQuestionButton>
+              <AddQuestionButton onClick={addNewRangeCard} type={range}></AddQuestionButton>
             </div>
             <div className='button-center'>
               <Button className='button' type='submit'>Сохранить</Button>
@@ -115,7 +164,6 @@ function CreatePoll(props){
     
     survey['questions'] = questions.map((question,q_id) => ({...question, order: q_id + 1, 
     options: question['options'].map((answer,id) => ({...answer,order: id + 1}))}))
-
     survey['experts_number'] = 999
     let encryptor = new cryptoSurvey();
     console.time('generate key time')
@@ -123,15 +171,15 @@ function CreatePoll(props){
     console.timeEnd('generate key time')
 
     survey['keys'] = {
-      'public_key': keys.public_key.toString(16), 
-      'public_exponent': keys.public_exponent.toString(16),
-      'private_key': keys.private_key.toString(16),
-      'private_exponent': keys.private_exponent.toString(16)};
-
-
-    localStorage.setItem(`${survey.title}`,JSON.stringify({'private_key': keys.private_key.toString(16),
-    'private_exponent': keys.private_exponent.toString(16)}))
-    
+      'public_key': keys.public_exponent.toString(16), 
+      'public_exponent': keys.public_modulus.toString(16),
+      'private_key': keys.private_exponent.toString(16),
+      'private_exponent': keys.private_modulus.toString(16)};
+      
+      
+      localStorage.setItem(`${survey.title}`,JSON.stringify({'private_key': keys.private_exponent.toString(16),
+      'private_exponent': keys.private_modulus.toString(16)}))
+      console.log(survey)
     let response = await fetch(apiURL, {
       method: "POST",
       headers: {

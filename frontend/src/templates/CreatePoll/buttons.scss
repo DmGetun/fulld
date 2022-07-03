@@ -1,9 +1,8 @@
-
-.btn{
+.btn-save{
     margin: 10px ;
 }
-.btn:link,
-.btn:visited {
+.btn-save:link,
+.btn-save:visited {
     text-transform: uppercase;
     text-decoration: none;
     padding: 15px 40px;
@@ -13,22 +12,22 @@
     position: absolute;
 }
 
-.btn:hover {
+.btn-save:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.btn:active {
+.btn-save:active {
     transform: translateY(-1px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
-.btn-white {
+.btn-save-white {
     background-color: #fff;
     color: black;
 }
 
-.btn::after {
+.btn-save::after {
     content: "";
     display: inline-block;
     height: 100%;
@@ -41,16 +40,16 @@
     transition: all .4s;
 }
 
-.btn-white::after {
+.btn-save-white::after {
     background-color: #fff;
 }
 
-.btn:hover::after {
+.btn-save:hover::after {
     transform: scaleX(1.4) scaleY(1.6);
     opacity: 0;
 }
 
-.btn-animated {
+.btn-save-animated {
     animation: moveInBottom 5s ease-out;
     animation-fill-mode: backwards;
 }

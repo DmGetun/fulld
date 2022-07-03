@@ -27,6 +27,7 @@ from rest_framework.permissions import IsAuthenticated
 import jwt
 from .models import Key, User
 from .dmodule import SurveyEncryptor
+from .models import Navigate
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -61,6 +62,13 @@ def login(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated,])
 def get_opros(request,slug = None):
+    import couchdb
+    c = couchdb.Server('http://admin:7776@localhost:5984')
+    db = c['test1']
+    n = Navigate.objects.filter(slug=slug)
+    id = n.values('db_id')[0]['db_id']
+    doc = db[id]
+    return Response(doc,status=HTTP_200_OK)
     if slug is None:
         p = Survey.objects.all()[0]
     else:
@@ -73,11 +81,17 @@ def get_opros(request,slug = None):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated,])
 def add_opros(request):
+    import couchdb
+    c = couchdb.Server('http://admin:7776@localhost:5984')
+    db = c['test1']
+    id,rev = db.save(request.data)
     print(request.data)
     user = User.objects.get(id=request.user.id)
 
     context = request.data['questions']
-    request.data['slug'] = get_unique_slug(Survey)
+    slug = get_unique_slug(Survey)
+    request.data['slug'] = slug
+    Navigate.objects.create(slug=slug,db_id=id)
     keys = request.data['keys']
     print(request.data)
     serializer = SurveySerializer(data=request.data,context={'questions': context, 'creator': user, 'keys':keys})

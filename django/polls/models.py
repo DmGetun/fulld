@@ -9,7 +9,9 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 # class User(AbstractUser):
 #     status = models.CharField(max_length=1,choices=Status.choices, default=Status.EXPERT)
 
-
+class Navigate(models.Model):
+    slug = models.SlugField(max_length=70,blank=True)
+    db_id = models.CharField(max_length=256)
 
 class Survey(models.Model):
     title = models.CharField(max_length=255)

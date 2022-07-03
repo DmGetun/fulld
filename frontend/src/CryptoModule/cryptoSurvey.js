@@ -19,25 +19,32 @@ export class cryptoSurvey {
         let n = p.multiply(q)
         let n_2 = n.pow(2);
         let alf = bigInt.lcm(p.minus(1),q.minus(1));
-        let y = this.randInt(n.bitLength() - 2)
+        let y = bigInt(65536)
         let u = y.modPow(alf,n_2)
         let l = L(u,n)
         let s = l.modInv(n);
         let x = s.divmod(n).remainder; 
-        return {'public_key':y.toString(16), 'public_exponent':n.toString(16), 
-        'private_key':alf.toString(16),'private_exponent':x.toString(16)}
+        return {'public_exponent':y.toString(16), 'public_modulus':n.toString(16), 
+        'private_exponent':alf.toString(16),'private_modulus':x.toString(16)}
     }
 
     randInt(keysize){
         var bigInt = require("big-integer");
-        let isPrime = false;
-        let consta = bigInt(2);
-        let rand = bigInt(0);
-        while(!isPrime){
-            rand = bigInt.randBetween(consta.pow(keysize-1),consta.pow(keysize));
-            isPrime = rand.isProbablePrime();
+        var crypto = require("randombytes");
+        let a = {
+            'size': 2048,
+            'public': 123,
+            'private': 456
         }
-        return rand;
+        while(true){
+            let random =  crypto(keysize/8)
+            random[random.byteLength-1] = random[random.byteLength-1] | 0x01   
+            random[0] = random[0] | 0x80
+            let rand = bigInt(random.toString('hex'),16);
+            if (rand.isProbablePrime()) {
+                return rand;
+            }
+        }
     }
 
     EncryptSurvey(survey){
@@ -95,7 +102,7 @@ export class cryptoSurvey {
         let decoded = {}
         let index = 1
         while (result > 0) {
-            r = result & ~(-k);
+            let r = result & ~(-k);
             result >>= k
             decoded[index++] = r
         }
@@ -104,7 +111,7 @@ export class cryptoSurvey {
 
     InterpQuantitative(answers){
         let result = {}
-        decryptAnswers = this.DecryptMessages(answers); 
+        //decryptAnswers = this.DecryptMessages(answers); 
     }
 
     GetStep(){

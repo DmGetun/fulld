@@ -1,0 +1,27 @@
+        <div>
+          {
+            cardList.sort(sortCards).map(card =>
+              <div draggable={true} className={'card'}
+              onDragStart={(e) => dragStartHandler(e, card)}
+              onDragLeave={(e) => dragEndHandler(e)}
+              onDragEnd={(e) => dragEndHandler(e)}
+              onDragOver={(e) => dragOverHandler(e)}
+              onDrop={(e) => dragDropHandler(e, card)}
+              >
+                
+                {card.text}
+              </div>)
+          }
+        </div>
+
+    .card{
+    width:200px;
+    height:300px;
+    display:flex;
+    border-radius: 12px;
+    border: 5px solid;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    cursor: grab;
+  }

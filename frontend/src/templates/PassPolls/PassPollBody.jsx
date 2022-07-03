@@ -8,7 +8,9 @@ import { Button } from 'reactstrap';
 import axios from 'axios';
 import { API_URL_TAKE_POLL } from '../static/constants';
 import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
-import './save.scss';
+import { RangeCard } from './RangeCard';
+import { QualitativeCard } from './QualitativeCard';
+import { QuantitativeCard } from './QuantitativeCard';
 
 function PassPollBody(props) {
 
@@ -32,8 +34,10 @@ function PassPollBody(props) {
       })
       let data = await response.json();
       console.log(data);
+      console.log(data.questions)
       if(response.status === 200){
         setItems(data);
+        setStates(data.questions)
         setIsLoaded(true);
       } 
       else if(response.status === 404) {
@@ -57,6 +61,23 @@ function PassPollBody(props) {
     let title = items.title;
     let questions = items.questions;
 
+    const [states,setStates] = useState(questions)
+
+    function changeAnswer(question){
+      if (!!!question) return
+      console.log(states)
+      setStates(states.map(state => 
+        state.order === question.order ? question : state
+      ))
+    }
+
+    function cardToRender(question){
+      let type = question.type;
+      if (type === 'qualitative') return <QualitativeCard onChange={changeAnswer} question={question}/>
+      if (type === 'quantitative') return <QuantitativeCard onChange={changeAnswer} question={question}/>
+      if (type === 'range') return <RangeCard onChange={changeAnswer} question={question}/>
+    }
+
   return (
       !isExist ? <h1 align='center'>Указанного опроса не существует</h1> : 
       !isLoaded ? <h1 align='center'>Загрузка...</h1> : 
@@ -64,15 +85,7 @@ function PassPollBody(props) {
         <h1 align='center'>{ title }</h1>
         <form onSubmit={e => SendPoll(e)}>
          { questions.map((question,question_id) =>
-            <PassQuestionCard key={question_id}>
-              <PassTitleField Text={question.title} id={question.id} />
-              <Answers>
-                { questions[question_id]['options'].map((answer,answer_id) => 
-                  <PassAnswerField Name={'question_' + question.id} id={answer_id} 
-                  Text={answer.title} setChoose={SetChoose} key={answer_id}></PassAnswerField>
-                )}
-              </Answers>
-            </PassQuestionCard>
+            cardToRender(question)
          )}
          <div className='center'>
           <Button className='button' type='submit'>Сохранить</Button>
