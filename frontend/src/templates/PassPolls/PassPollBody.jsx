@@ -100,18 +100,6 @@ function PassPollBody(props) {
       </div>
 )
 
-  function SignSurvey(gost) {
-    let bigInt = require('big-integer')
-    
-    let hash = bigInt(2); // gost3411-2012
-    let [mu,epsilon] = gost.GenerateRandom(16)
-    let C_ = gost.CalculateC_()
-    let r_ = gost.CalculateR_(C_)
-    let e = gost.CalculateE(hash)
-    let r = gost.CalculateR(r_,e)
-    return [r,r_]
-  }
-
   async function SendSign(r) {
     let aaa = 0
     const apiURL = 'http://localhost:8000/user/verify'
@@ -147,9 +135,10 @@ function PassPollBody(props) {
       : {...state,['answer']: encryptor.Encrypt(state.answer)}
     )
     let gost = new BlindGost34102012(gostParams)
-    let [r,r_] = SignSurvey(gost)
+    let [r,r_] = gost.SignMessage(2)
     let s = await SendSign(r)
-    let blindSign = gost.GetBlindSign(r_,s)
+    let [r_b,s_b] = gost.GetBlindSign(r_,s)
+    let blindSign = gost.GetHexBlindSign(r_b,s_b)
     items['sign'] = blindSign
     let response = await fetch(apiURL, {
       method: "POST",

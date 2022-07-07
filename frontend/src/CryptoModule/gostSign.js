@@ -73,46 +73,141 @@ export class BlindGost34102012{
         return t_point
     }
 
+    GenerateC(private_key) {
+        `
+        only for a signer-side use
+        `
+        if (this.isString(private_key)) private_key = bigInt(private_key,16)
+        else private_key = bigInt(private_key)
+
+        let G = this.G
+        return this.exp(G.x,G.y,private_key)
+    }
+
+    PublicKey(private_key) {
+        `
+        only for a signer-side use
+        `
+        if (this.isString(private_key)) private_key = bigInt(private_key,16)
+        else private_key = bigInt(private_key)
+
+        let G = this.G
+        return this.exp(G.x,G.y,private_key)
+    }
+
+    CalculateS(k,private_key,r) {
+        if (this.isString(private_key)) private_key = bigInt(private_key,16)
+        else private_key = bigInt(private_key)
+
+        if (this.isString(k)) k = bigInt(k,16)
+        else k = bigInt(k)
+
+        if (this.isString(r)) r = bigInt(r,16)
+        else r = bigInt(r)
+
+        return k.add(private_key.multiply(r)).mod(this.q)
+    }
+
+    SignMessage(hash,mu=null,epsilon=null) {
+        let size = this.q.bitLength()
+        mu = mu || this.GenerateRandom(size)
+        epsilon = epsilon || this.GenerateRandom(size)
+        this.mu = mu 
+        this.epsilon = epsilon
+
+        let C_ = this.CalculateC_()
+        let r_ = this.CalculateR_(C_)
+        let e = this.CalculateE(hash)
+        let r = this.CalculateR(r_,e)
+        return [r,r_]
+    }
 
     GenerateRandom(size=256) {
         let length = size / 8
-        this.mu = bigInt(randomBytes(length).toString('hex'),16).add(1)
-        this.epsilon = bigInt(randomBytes(length).toString('hex'),16).add(1)
-        if(this.mu > this.q) console.log('mu')
-        if(this.epsilon > this.q) console.log('epsilon')
-        return [this.mu,this.epsilon]
+        return bigInt(randomBytes(length).toString('hex'),16).minus(1)
     }
 
-    CalculateC_(){
-        'receive a Q,G,C'
-        let g_result = this.exp(this.G.x,this.G.y,this.epsilon)
-        let q_result = this.exp(this.Q.x,this.Q.y,this.mu)
-        let C_Q = this.add(this.C.x,this.C.y,q_result.x,q_result.y)
+    GenerateTwoRandomNumber(size=256) {
+        let length = size / 8
+        mu = bigInt(randomBytes(length).toString('hex'),16).minus(1)
+        epsilon = bigInt(randomBytes(length).toString('hex'),16).minus(1)
+        return [mu,epsilon]
+    }
+
+    CalculateC_(Q = null,G=null,C=null,epsilon=null,mu=null){
+        Q = Q || this.Q
+        G = G || this.G
+        C = C || this.C
+        epsilon = epsilon || this.epsilon
+        mu = mu || this.mu
+        let g_result = this.exp(G.x,G.y,epsilon)
+        let q_result = this.exp(Q.x,Q.y,mu)
+        let C_Q = this.add(C.x,C.y,q_result.x,q_result.y)
         let C_ = this.add(C_Q.x,C_Q.y,g_result.x,g_result.y)
         return C_
     }
 
-    CalculateR_(c_point){
-        return c_point.x.mod(this.q)
+    CalculateR_(c_point,q=null){
+        q = q || this.q
+        return c_point.x.mod(q)
     }
 
     CalculateE(hash) {
+        if (this.isString(hash)) hash = bigInt(hash,16)
         this.e = hash.mod(this.q)
         return this.e
     }
 
-    CalculateR(r_,e) {
-        let e_env = this.modinvert(e,this.q)
-        let r = r_.multiply(e_env).add(this.mu).mod(this.q)
+    isString(val) {
+        return (typeof val === "string" || val instanceof String);
+    }
+
+    CalculateR(r_,e,q=null,mu=null) {
+        q = q || this.q 
+        mu = mu || this.mu
+        if (mu >= q) throw new Error('mu must be a lesser than q')
+
+        let e_env = this.modinvert(e,q)
+        let r = r_.multiply(e_env).add(mu).mod(q)
         return r
     }
 
-    CalculateS_(e,s){
-        return e.multiply(s.add(this.epsilon)).mod(this.q)
+    CalculateS_(e,s,q=null,epsilon=null){
+        q = q || this.q 
+        epsilon = epsilon || this.epsilon
+        return e.multiply(s.add(epsilon)).mod(q)
     }
 
-    GetBlindSign(r_,s) {
-        let s_ = this.e.multiply(s.add(this.epsilon)).mod(this.q)
+    GetBlindSign(r_,s,q=null,e=null,epsilon=null) {
+        q = q || this.q 
+        e = e || this.e
+        epsilon = epsilon || this.epsilon
+        if (epsilon >= q) throw new Error('epsilon must be a lesser than q')
+        let s_ = this.CalculateS_(e,s,q,epsilon)
+        return [r_,s_]
+    }
+
+    GetHexBlindSign(r_,s_){
         return r_.toString(16) + s_.toString(16)
+    }
+
+    VerifySign(sign,hash,Q) {
+        let e = hash % this.q
+        if (e === 0) e = bigInt(1)
+        let length = sign.length
+        let r_ = bigInt(sign.substring(0,length),16)
+        let s_ = bigInt(sign.substring(length),16)
+
+        let v = this.modinvert(e,this.q)
+        let r1 = s_.multiply(v).mod(this.q)
+        let r2 = (this.q.minus(r_)).multiply(v).mod(this.q)
+
+        let C_r1 = this.exp(this.G.x,this.G.y,r1)
+        let C_r2 = this.exp(this.Q.x,this.Q.y,r2)
+
+        let C = this.add(C_r1.x,C_r1.y,C_r2.x,C_r2.y)
+
+        let R = C.x.mod(q)
+        return R === r_
     }
 }
