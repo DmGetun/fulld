@@ -36,7 +36,9 @@ function ResultPoll(props) {
                 setIsNull(true);
                 return;
             }
+            console.time('asd')
             polls = Agregate(polls)
+            console.timeEnd('asd')
             setPolls(polls);
             setIsLoading(true);
         }
@@ -57,8 +59,8 @@ function ResultPoll(props) {
         {
             isNull ? <h1 align='center'>У вас нет созданных опросов</h1> 
             : isLoading ?
-                    polls.questions.map((poll,i) => 
-                        <PollCard key={i} question={poll} />
+                    polls.questions.map((question,i) => 
+                        <PollCard key={i} question={question} />
                     )
                     
             : <h1>loading...</h1>

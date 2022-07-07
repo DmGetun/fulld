@@ -1,9 +1,7 @@
-import { Button } from 'reactstrap';
-import AddQuestionButton from '../CreatePoll/AddQuestionButton';
-
 function PollCard(props) {
 
     let question = props.question
+    if (question === undefined) return
     return (
         <div class="card question_card question-card">
           <div class="card-body">
@@ -18,23 +16,23 @@ function PollCard(props) {
           </div>
         </div>
     );
+}
 
-    function QualitativeCard(props) {
-        let question = props.question
-        return (
-            question.options.map((question,q_id) => 
-            <h4 class="text-dark">{question.title}: {question.result[q_id]} </h4> 
-        )
-        )
-    }
+export function QualitativeCard(props) {
+    let question = props.question
+    return (
+        question.options.map((option,q_id) => 
+        <h4 class="text-dark">{option.title}: {question['result'][q_id + 1]} </h4> 
+    )
+    )
+}
 
-    function QuantitativeCard(props) {
-        let question = props.question   
-        return (
-            question.result
-        )
+export function QuantitativeCard(props) {
+    let question = props.question   
+    return (
+        <h2>Средняя оценка: {question.result}</h2>
+    )
 
-    }
 }
 
 export default PollCard;

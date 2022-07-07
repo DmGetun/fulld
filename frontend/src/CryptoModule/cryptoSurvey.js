@@ -3,6 +3,29 @@ import { gcd, lcm, pow, L, modinv} from './utils';
 
 let bigInt = require("big-integer");
 let crypto = require("randombytes");
+const {Base64} = require('js-base64');
+
+
+function privateCertificate (module,exponent) {
+    const template = 
+`
+ Private Key algo Pailier\n
+ Private Format  PKCS#8\n
+ ASN1 Dump\n
+RSA Private CRT Key [6b:05:fc:bd:c6:a1:15:a1:a6:d1:72:39:83:3a:8c:be:3d:eb:18:1d]\n
+            modulus:\n
+${module}\n
+    public exponent: ${exponent}\n
+`
+let result = 
+`
+-----BEGIN PRIVATE KEY-----
+${template}
+-----END PRIVATE KEY-----\n
+`
+return result
+}
+
 export class cryptoSurvey {
 
     constructor(expertsNumber) {
@@ -24,6 +47,7 @@ export class cryptoSurvey {
         let l = L(u,n)
         let s = l.modInv(n);
         let x = s.divmod(n).remainder; 
+        console.log(privateCertificate(x.toString(16),alf.toString(16)))
         return {'public_exponent':y.toString(16), 'public_modulus':n.toString(16), 
         'private_exponent':alf.toString(16),'private_modulus':x.toString(16)}
     }
@@ -59,9 +83,23 @@ export class cryptoSurvey {
     }
 
     Encrypt(message){
+        message = this.EncodeAnswer(message)
         var bigInt = require("big-integer");
-        let pub_key = bigInt(this.keys.public_key,16);
-        let pub_exp = bigInt(this.keys.public_exponent,16);
+        let pub_key = bigInt(this.keys.public_exponent,16);
+        let pub_exp = bigInt(this.keys.public_modulus,16);
+        //let random = this.randInt(pub_exp.bitLength() - 3)
+        let random = this.randInt(28)
+        let n_2 = pub_exp.pow(2);
+        let result = pub_key.modPow(message,n_2).multiply(random.modPow(pub_exp,n_2)).divmod(n_2).remainder;
+        return result.toString(16)
+    }
+
+    EncryptQuantitative(message,factor){
+        let value = +factor['title']
+        message = message * value
+        var bigInt = require("big-integer");
+        let pub_key = bigInt(this.keys.public_exponent,16);
+        let pub_exp = bigInt(this.keys.public_modulus,16);
         //let random = this.randInt(pub_exp.bitLength() - 3)
         let random = this.randInt(28)
         let n_2 = pub_exp.pow(2);
@@ -79,11 +117,12 @@ export class cryptoSurvey {
 
     Decrypt(message){
         var bigInt = require("big-integer");
-        let a = bigInt(this.keys.privave_key,16);
-        let x = bigInt(this.keys.privave_exponent,16);
-        let n = bigInt(this.keys.public_exponent,16);
+        let a = bigInt(this.keys.private_exponent,16);
+        let x = bigInt(this.keys.private_modulus,16);
+        let n = bigInt(this.keys.public_modulus,16);
         let n_2 = n.pow(2);
-        return L(message.modPow(a,n_2),n).multiply(x).divmod(n).remainder;
+        let r = L(message.modPow(a,n_2),n).multiply(x).divmod(n).remainder;
+        return r
     }
 
     EncodeAnswer(answer){
@@ -97,7 +136,7 @@ export class cryptoSurvey {
         let decoded = {}
         let index = 1
         while (result > 0) {
-            let r = result & ~(-k);
+            let r = result & ~(-Math.pow(2,k));
             result >>= k
             decoded[index++] = r
         }
@@ -106,7 +145,7 @@ export class cryptoSurvey {
 
     AgregateResult(surveys) {
         let survey = surveys[0]
-        for (let i = 0; i < surveys.length; i++) {
+        for (let i = 0; i < survey.questions.length; i++) {
             let question = surveys[i].questions
             let results = surveys.map(survey => bigInt(survey.questions[i]['answer'],16))
             if (question[i].type === 'qualitative') {
@@ -114,7 +153,7 @@ export class cryptoSurvey {
                 survey.questions[i]['result'] = decrypted_results
             }
             if (question[i].type === 'quantitative') {
-                let decrypted_results = this.AgregateQuantitative(results)
+                let decrypted_results = this.AgregateQuantitative(results,question[i].options[0]['title'])
                 survey.questions[i]['result'] = decrypted_results
             }
             // if (question[i].type === 'range') {
@@ -125,29 +164,30 @@ export class cryptoSurvey {
         return survey
     }
 
-    AgregateQuantitative(answers) {
+    AgregateQuantitative(answers,factor) {
         let sum = this.ArrayAddition(answers)
+        factor = +factor
         let encrypted_result = this.Decrypt(sum)
-        return encrypted_result / answers.length
+        return encrypted_result / factor / answers.length
     }
 
     AgregateQualitative(answers) {
         let sum = this.ArrayAddition(answers)
-        return this.DecodeResult(sum)
+        let decrypted_result = this.Decrypt(sum)
+        return this.DecodeResult(decrypted_result)
     }
 
     ArrayAddition(values) {
-        let module = bigInt(this.keys.public_exponent,16);
+        let module = bigInt(this.keys.public_modulus,16).pow(2)
         return values.reduce((a,b) => a.multiply(b).mod(module))
+    }
+
+    Multiplication(a,b,m) {
+        return bigInt(a).modPow(b,m)
     }
 
     Addition(a,b,m) {
         return a * b % m
-    }
-
-    InterpQuantitative(answers){
-        let result = {}
-        //decryptAnswers = this.DecryptMessages(answers); 
     }
 
     GetStep(){

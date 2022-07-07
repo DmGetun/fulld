@@ -4,6 +4,129 @@ from multiprocessing import Pool
 from functools import partial, reduce
 import math
 import random
+from pygost.utils import bytes2long
+from pygost.utils import hexdec
+from pygost.utils import long2bytes
+from pygost.utils import modinvert
+from pygost.gost3410 import prv_unmarshal
+
+class BlingGost34102012():
+
+    def __init__(self):
+        self.p=bytes2long(hexdec("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD97"))
+        self.q=bytes2long(hexdec("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6C611070995AD10045841B09B761B893"))
+        self.a=bytes2long(hexdec("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD94"))
+        self.b=bytes2long(hexdec("00000000000000000000000000000000000000000000000000000000000000a6"))
+        self.x=bytes2long(hexdec("0000000000000000000000000000000000000000000000000000000000000001"))
+        self.y=bytes2long(hexdec("8D91E471E0989CDA27DF505A453F2B7635294F2DDF23E3B122ACC99C9E9F1E14"))
+
+    def pos(self, v):
+        """
+        Make positive number
+        """
+        if v < 0:
+            return v + self.p
+        return v
+
+    def contains(self, point):
+        """Is point on the curve?
+
+        :type point: (long, long)
+        """
+        x, y = point
+        r1 = y * y % self.p
+        r2 = ((x * x + self.a) * x + self.b) % self.p
+        return r1 == self.pos(r2)
+
+    def modinvert(self,x,p):
+        return pow(x,-1,p)
+
+    def _add(self, p1x, p1y, p2x, p2y):
+        if p1x == p2x and p1y == p2y:
+            # double
+            t = ((3 * p1x * p1x + self.a) * self.modinvert(2 * p1y, self.p)) % self.p
+        else:
+            tx = self.pos(p2x - p1x) % self.p
+            ty = self.pos(p2y - p1y) % self.p
+            t = (ty * self.modinvert(tx, self.p)) % self.p
+        tx = self.pos(t * t - p1x - p2x) % self.p
+        ty = self.pos(t * (p1x - tx) - p1y) % self.p
+        return tx, ty
+
+    def get_certificate(self,Q,C):
+        Q = [hex(Q[0])[2:],hex(Q[1])[2:]]
+        C = [hex(C[0])[2:],hex(C[1])[2:]]
+        return dict(
+            p=hex(self.p)[2:],
+            q=hex(self.q)[2:],
+            a=hex(self.a)[2:],
+            b=hex(self.b)[2:],
+            x=hex(self.x)[2:],
+            y=hex(self.y)[2:],
+            Q=Q,
+            C=C
+        )
+
+    def exp(self, degree, x=None, y=None):
+        x = x or self.x
+        y = y or self.y
+        tx = x
+        ty = y
+        if degree == 0:
+            raise ValueError("Bad degree value")
+        degree -= 1
+        while degree != 0:
+            if degree & 1 == 1:
+                tx, ty = self._add(tx, ty, x, y)
+            degree = degree >> 1
+            x, y = self._add(x, y, x, y)
+        return tx, ty
+
+    
+    def generate_C(self,k):
+        '''
+        step 1. Send a user C point
+        '''
+        k = prv_unmarshal(k)
+        return self.exp(k)
+
+    def public_key(self,prv):
+        '''
+        return a Q point
+        '''
+        prv = prv_unmarshal(prv)
+        return self.exp(prv)
+
+    def calculate_s(self,k,prv,r):
+        k = prv_unmarshal(k)
+        prv = prv_unmarshal(prv)
+        s = (k + prv * r) % self.q
+        return s
+
+    def check_sign(self,sign,hash,Q):
+        print(f'{sign=}')
+        e = hash % self.q
+        s_2 = int(sign[len(sign)//2:],16)
+        rs = int(sign[:len(sign)//2],16)
+        print(f'{rs=} {s_2=}')
+        C_r1 = self.exp((s_2 * self.modinvert(e,self.q)),self.x,self.y)
+        C_r2 = self.exp((self.q - rs) * self.modinvert(e,self.q),Q[0],Q[1])
+
+        C_r = self._add(C_r1[0],C_r1[1],C_r2[0],C_r2[1])
+
+        print(C_r[0])
+        print(C_r[1])
+        print(rs)
+        print(s_2)
+        print(C_r[0] == rs)
+
+
+    @property
+    def G(self):
+        return (self.x,self.y)
+
+    
+
 
 class SurveyEncryptor():
 

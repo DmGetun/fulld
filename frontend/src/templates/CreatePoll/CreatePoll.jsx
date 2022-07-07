@@ -12,7 +12,7 @@ import { API_URL_CREATE_POLL } from '../static/constants';
 import { useNavigate } from 'react-router';
 import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
 import AddQuestionButton from './AddQuestionButton';
-import './save.scss';
+import './save.css';
 
 function CreatePoll(props){
 
@@ -100,6 +100,10 @@ function CreatePoll(props){
   </CreateQuestionCard>
  );
 
+const buttonStyle = {
+  margin: '10px'
+}
+
   return (
     <div class="container">
         <div class="">
@@ -107,12 +111,11 @@ function CreatePoll(props){
             <PollTitleField changeValue={setPollTitle}/>
             {cards}
             <div className='add-button-group'>
-              <AddQuestionButton onClick={addNewQuantitativeCard} type={qualitative}></AddQuestionButton>
+              <AddQuestionButton style={buttonStyle} onClick={addNewQuantitativeCard} type={qualitative}></AddQuestionButton>
               <AddQuestionButton onClick={addNewQualitativeCard} type={quantitative}></AddQuestionButton>
-              <AddQuestionButton onClick={addNewRangeCard} type={range}></AddQuestionButton>
             </div>
             <div className='button-center'>
-              <Button className='button' type='submit'>Сохранить</Button>
+              <Button className='button blue' type='submit'>Создать опрос</Button>
             </div>
           </form>
         </div>
@@ -130,15 +133,11 @@ function CreatePoll(props){
     let keys = encryptor.GenerateKey(2048);
     console.timeEnd('generate key time')
 
-    survey['keys'] = {
-      'public_key': keys.public_exponent.toString(16), 
-      'public_exponent': keys.public_modulus.toString(16),
-      'private_key': keys.private_exponent.toString(16),
-      'private_exponent': keys.private_modulus.toString(16)};
+    survey['keys'] = keys
       
       
-      localStorage.setItem(`${survey.title}`,JSON.stringify({'private_key': keys.private_exponent.toString(16),
-      'private_exponent': keys.private_modulus.toString(16)}))
+      localStorage.setItem(`${survey.title}`,JSON.stringify({'private_exponent': keys.private_exponent.toString(16),
+      'private_modulus': keys.private_modulus.toString(16)}))
       console.log(survey)
     let response = await fetch(apiURL, {
       method: "POST",

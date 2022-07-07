@@ -11,6 +11,9 @@ import { cryptoSurvey } from '../../CryptoModule/cryptoSurvey';
 import { RangeCard } from './RangeCard';
 import { QualitativeCard } from './QualitativeCard';
 import { QuantitativeCard } from './QuantitativeCard';
+import './style.css';
+import {BlindGost34102012} from '../../CryptoModule/gostSign'
+import bigInt from 'big-integer';
 
 function PassPollBody(props) {
 
@@ -21,6 +24,8 @@ function PassPollBody(props) {
     const [items, setItems] = useState([]);
     const [isExist, setIsExist] = useState(true);
     let [chooseValues, SetChooseValue] = useState([]);
+    let [gostParams,SetGostParams] = useState([]);
+    const [s_value,SetSValue] = useState(0);
 
     const apiURL = API_URL_TAKE_POLL + props.slug + '/';
 
@@ -37,6 +42,7 @@ function PassPollBody(props) {
       console.log(data.questions)
       if(response.status === 200){
         setItems(data);
+        SetGostParams(data['gost3410param'])
         setStates(data.questions)
         setIsLoaded(true);
       } 
@@ -88,11 +94,39 @@ function PassPollBody(props) {
             cardToRender(question)
          )}
          <div className='center'>
-          <Button className='button' type='submit'>Сохранить</Button>
+          <Button className='button blue' type='submit'>Отправить</Button>
          </div>
         </form>
       </div>
 )
+
+  function SignSurvey(gost) {
+    let bigInt = require('big-integer')
+    
+    let hash = bigInt(2); // gost3411-2012
+    let [mu,epsilon] = gost.GenerateRandom(16)
+    let C_ = gost.CalculateC_()
+    let r_ = gost.CalculateR_(C_)
+    let e = gost.CalculateE(hash)
+    let r = gost.CalculateR(r_,e)
+    return [r,r_]
+  }
+
+  async function SendSign(r) {
+    let aaa = 0
+    const apiURL = 'http://localhost:8000/user/verify'
+    let response = await fetch(apiURL,{
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + String(authTokens?.access)
+      },
+      body: JSON.stringify({r:r.toString(16)})
+      }
+    )
+    const json = await response.json()
+    return bigInt(json['s'],16)
+  }
 
   async function SendPoll(e) {
     e.preventDefault();
@@ -109,10 +143,14 @@ function PassPollBody(props) {
     encryptor.SetKey(keys);
     let p2 = JSON.parse(JSON.stringify(chooses));
     items['questions'] = states.map(state => 
-      state.type !== 'range' ? {...state,['answer']:encryptor.Encrypt(state.answer)} 
-      : {...state,['answers']: encryptor.EncryptMessages(state.answer)}
+      state.type === 'quantitative' ? {...state,['answer']:encryptor.EncryptQuantitative(state.answer,state.options[0])} 
+      : {...state,['answer']: encryptor.Encrypt(state.answer)}
     )
-    console.log(items)
+    let gost = new BlindGost34102012(gostParams)
+    let [r,r_] = SignSurvey(gost)
+    let s = await SendSign(r)
+    let blindSign = gost.GetBlindSign(r_,s)
+    items['sign'] = blindSign
     let response = await fetch(apiURL, {
       method: "POST",
       headers: {
