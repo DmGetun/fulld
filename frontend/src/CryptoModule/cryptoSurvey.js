@@ -5,35 +5,96 @@ let bigInt = require("big-integer");
 let crypto = require("randombytes");
 const {Base64} = require('js-base64');
 
+function ObjToBase64(obj) {
+    let objJson = JSON.stringify(obj)
+    return Buffer.from(objJson).toString('base64')
+}
 
-function privateCertificate (module,exponent) {
-    const template = 
-`
- Private Key algo Pailier\n
- Private Format  PKCS#8\n
- ASN1 Dump\n
-RSA Private CRT Key [6b:05:fc:bd:c6:a1:15:a1:a6:d1:72:39:83:3a:8c:be:3d:eb:18:1d]\n
-            modulus:\n
-${module}\n
-    public exponent: ${exponent}\n
-`
-let result = 
-`
------BEGIN PRIVATE KEY-----
-${template}
------END PRIVATE KEY-----\n
-`
-return result
+function ObjFromBase64(base64) {
+    let objJson = Base64.decode(base64)
+    return JSON.parse(objJson)
 }
 
 export class cryptoSurvey {
+
 
     constructor(expertsNumber) {
         this.expertsNumber = expertsNumber;
     }
 
-    SetKey(keys){
-        this.keys = keys
+    PailierPublicKeyCertificate(modulus,exponent) {
+        let cert = {
+            'Private key algo': 'Pailier',
+            'Private Format': 'PKCS#8',
+            'Modulus:': `${modulus}`,
+            'Exponent': `${exponent}` 
+        }
+        let certificate = `
+        -----BEGIN PAILIER PUBLIC KEY-----
+        ${ObjToBase64(cert)}
+        -----END PAILIER PUBLIC KEY-----`
+        this.Certificate = certificate
+    }
+
+    PailierPrivateKeyCertificate(modulus,pubExp,privExp,primeP,primeQ) {
+        let cert = {
+            'Private key algo': 'Pailier',
+            'Private Format': 'PKCS#8',
+            'Modulus:': `${modulus}`,
+            'Public Exponent': `${pubExp}`,
+            'Private Exponent': `${privExp}`,
+            'Prime P': `${primeP}`,
+            'Prime Q': `${primeQ}` 
+        }
+        let certificate = `
+        -----BEGIN PAILIER SECRET KEY-----
+        ${ObjToBase64(cert)}
+        -----END PAILIER SECRET KEY-----`
+        this.Certificate = certificate
+    }
+
+    ParsePrivateCertificate(certificate) {
+        cert = certificate.split('\n')[1]
+        cert = ObjFromBase64(cert)
+        return {
+            'private_exponent':cert['Private Exponent'],
+            'private_modulus':cert['Modulus'],
+            'public_exponent': cert['Public Exponent'],
+            'prime_p':cert['Prime P'],
+            'prime_q': cert['Prime Q'],
+        }
+    }
+
+    ParsePublicCertificate(certificate){
+        cert = certificate.split('\n')[1]
+        cert = ObjFromBase64(cert)
+        return {
+            'public_modulus': cert['Modulus'],
+            'public_exponent': cert['Exponent']
+        }
+    }
+
+    SetPrivateKey(certificate) {
+        this.keys = this.ParsePrivateCertificate(certificate)
+    }
+
+    SetPublicKey(certificate){
+        this.keys = this.ParsePublicCertificate(certificate)
+    }
+
+    GetPublicKey(certificate) {
+        let keys = this.ParsePrivateCertificate(certificate)
+        let p = keys['prime_p']
+        let q = keys['prime_q']
+        let y = keys['Public Exponent']
+        let n = keys['Public Modulus']
+        let n_2 = n.pow(2)
+        let alf = bigInt.lcm(p.minus(1),q.minus(1))
+        let u = y.modPow(alf,n_2)
+        let l = L(u,n)
+        let s = l.modInv(n)
+        let x = s.divmod(n).remainder
+        return this.PailierPublicKeyCertificate()
     }
 
     GenerateKey(keysize=1024){
@@ -156,10 +217,6 @@ export class cryptoSurvey {
                 let decrypted_results = this.AgregateQuantitative(results,question[i].options[0]['title'])
                 survey.questions[i]['result'] = decrypted_results
             }
-            // if (question[i].type === 'range') {
-            //     let decrypted_results = this.AgregateQualitative(results)
-            //     console.log(decrypted_results)
-            // }
         }
         return survey
     }

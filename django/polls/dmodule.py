@@ -9,6 +9,7 @@ from pygost.utils import hexdec
 from pygost.utils import long2bytes
 from pygost.utils import modinvert
 from pygost.gost3410 import prv_unmarshal
+from pygost.gost34112012 import GOST34112012
 
 class BlingGost34102012():
 
@@ -21,18 +22,11 @@ class BlingGost34102012():
         self.y=bytes2long(hexdec("8D91E471E0989CDA27DF505A453F2B7635294F2DDF23E3B122ACC99C9E9F1E14"))
 
     def pos(self, v):
-        """
-        Make positive number
-        """
         if v < 0:
             return v + self.p
         return v
 
     def contains(self, point):
-        """Is point on the curve?
-
-        :type point: (long, long)
-        """
         x, y = point
         r1 = y * y % self.p
         r2 = ((x * x + self.a) * x + self.b) % self.p
@@ -43,7 +37,6 @@ class BlingGost34102012():
 
     def _add(self, p1x, p1y, p2x, p2y):
         if p1x == p2x and p1y == p2y:
-            # double
             t = ((3 * p1x * p1x + self.a) * self.modinvert(2 * p1y, self.p)) % self.p
         else:
             tx = self.pos(p2x - p1x) % self.p
@@ -104,21 +97,15 @@ class BlingGost34102012():
         return s
 
     def check_sign(self,sign,hash,Q):
-        print(f'{sign=}')
-        e = hash % self.q
-        s_2 = int(sign[len(sign)//2:],16)
-        rs = int(sign[:len(sign)//2],16)
-        print(f'{rs=} {s_2=}')
+        e = int(hash,16) % self.q
+        rs = int(sign[len(sign)//2:],16)
+        s_2 = int(sign[:len(sign)//2],16)
         C_r1 = self.exp((s_2 * self.modinvert(e,self.q)),self.x,self.y)
         C_r2 = self.exp((self.q - rs) * self.modinvert(e,self.q),Q[0],Q[1])
 
         C_r = self._add(C_r1[0],C_r1[1],C_r2[0],C_r2[1])
 
-        print(C_r[0])
-        print(C_r[1])
-        print(rs)
-        print(s_2)
-        print(C_r[0] == rs)
+        return C_r[0] == rs
 
 
     @property

@@ -1,3 +1,8 @@
+import GostDigest from "gost-crypto/lib/gostDigest";
+import {Buffer} from 'buffer';
+
+const { gostCrypto, gostEngine } = require('gost-crypto');
+const arrayBufferToHex = require('array-buffer-to-hex')
 let randomBytes = require("randombytes");
 let bigInt = require('big-integer')
 
@@ -74,9 +79,9 @@ export class BlindGost34102012{
     }
 
     GenerateC(private_key) {
-        `
+        /*
         only for a signer-side use
-        `
+        */
         if (this.isString(private_key)) private_key = bigInt(private_key,16)
         else private_key = bigInt(private_key)
 
@@ -85,9 +90,7 @@ export class BlindGost34102012{
     }
 
     PublicKey(private_key) {
-        `
-        only for a signer-side use
-        `
+
         if (this.isString(private_key)) private_key = bigInt(private_key,16)
         else private_key = bigInt(private_key)
 
@@ -108,12 +111,19 @@ export class BlindGost34102012{
         return k.add(private_key.multiply(r)).mod(this.q)
     }
 
-    SignMessage(hash,mu=null,epsilon=null) {
+    SignMessage(message,mu=null,epsilon=null) {
         let size = this.q.bitLength()
         mu = mu || this.GenerateRandom(size)
         epsilon = epsilon || this.GenerateRandom(size)
         this.mu = mu 
         this.epsilon = epsilon
+        message = new TextEncoder().encode(message)
+        console.log(message)
+        let buffer = Buffer.from(message)
+        console.log(buffer)
+        let hash = new GostDigest().digest(buffer)
+        hash = arrayBufferToHex(hash)
+        console.log(hash)
 
         let C_ = this.CalculateC_()
         let r_ = this.CalculateR_(C_)
@@ -129,8 +139,8 @@ export class BlindGost34102012{
 
     GenerateTwoRandomNumber(size=256) {
         let length = size / 8
-        mu = bigInt(randomBytes(length).toString('hex'),16).minus(1)
-        epsilon = bigInt(randomBytes(length).toString('hex'),16).minus(1)
+        let mu = bigInt(randomBytes(length).toString('hex'),16).minus(1)
+        let epsilon = bigInt(randomBytes(length).toString('hex'),16).minus(1)
         return [mu,epsilon]
     }
 
@@ -207,7 +217,7 @@ export class BlindGost34102012{
 
         let C = this.add(C_r1.x,C_r1.y,C_r2.x,C_r2.y)
 
-        let R = C.x.mod(q)
+        let R = C.x.mod(this.q)
         return R === r_
     }
 }

@@ -135,11 +135,12 @@ function PassPollBody(props) {
       : {...state,['answer']: encryptor.Encrypt(state.answer)}
     )
     let gost = new BlindGost34102012(gostParams)
-    let [r,r_] = gost.SignMessage(2)
+    let [r,r_] = gost.SignMessage(JSON.stringify(items))
     let s = await SendSign(r)
     let [r_b,s_b] = gost.GetBlindSign(r_,s)
     let blindSign = gost.GetHexBlindSign(r_b,s_b)
     items['sign'] = blindSign
+    console.log(JSON.stringify(items))
     let response = await fetch(apiURL, {
       method: "POST",
       headers: {

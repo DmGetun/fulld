@@ -32,6 +32,7 @@ from .dmodule import SurveyEncryptor
 from .dmodule import BlingGost34102012
 from pygost.gost3410 import prv_unmarshal
 from .models import Navigate
+from pygost.gost34112012 import GOST34112012
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -82,7 +83,7 @@ def get_opros(request,slug = None):
     gost3410 = BlingGost34102012()
     #k = urandom(64)
     k = (3).to_bytes(2,byteorder='little')
-    prv = (3).to_bytes(2,byteorder='little')
+    prv = (4).to_bytes(2,byteorder='little')
     #print(gost3410.get_certificate(1,2))
     Q = gost3410.public_key(prv)
     C = gost3410.generate_C(k)
@@ -121,18 +122,23 @@ def receive_survey(request):
     import couchdb
     c = couchdb.Server('http://admin:7776@localhost:5984')
     db = c['results']
-    del request.data['_id']
-    del request.data['_rev']
     sign = request.data['sign']
     del request.data['sign']
-
+    import ast
+    message = json.dumps(request.data,ensure_ascii=False).encode('ascii')
+    print(message)
+    del request.data['_id']
+    del request.data['_rev']
+    print(type(request.data))
+    stribog = GOST34112012(message,32)
     gost3410 = BlingGost34102012()
     #k = urandom(64)
     k = (3).to_bytes(2,byteorder='little')
     prv = (3).to_bytes(2,byteorder='little')
     #print(gost3410.get_certificate(1,2))
     Q = gost3410.public_key(prv)
-    hash = 2
+    hash = hex(int.from_bytes(stribog.digest(),'big'))[2:]
+    print(hash)
     result = gost3410.check_sign(sign,hash,Q)
     id,rev = db.save(request.data)
     Results.objects.create(slug=request.data['slug'],db_id=id)
